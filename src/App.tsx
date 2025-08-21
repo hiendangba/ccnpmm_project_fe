@@ -1,9 +1,9 @@
-import './App.css'
 import AuthPage from "./components/auth/AuthPage";
+import './App.css'
 
 function App() {
 
-  return (
+ return (
     <div>
       <AuthPage />
     </div>
