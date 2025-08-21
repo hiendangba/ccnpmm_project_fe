@@ -1,5 +1,5 @@
-import AuthPage from "./components/auth/AuthPage";
 import './App.css'
+import AuthPage from "./components/auth/AuthPage";
 
 function App() {
 

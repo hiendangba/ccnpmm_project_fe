@@ -1,18 +1,26 @@
-import React, { useState } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
+
+type FormData = {
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
 
 export default function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({
+  const [isLogin, setIsLogin] = useState<boolean>(true);
+  const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
     confirmPassword: "",
   });
 
-  const handleChange = (e) => {
+  // Sự kiện input change
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  // Sự kiện submit form
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!isLogin && formData.password !== formData.confirmPassword) {
@@ -74,6 +82,7 @@ export default function AuthPage() {
         <p className="mt-4 text-center text-sm">
           {isLogin ? "Chưa có tài khoản?" : "Đã có tài khoản?"}{" "}
           <button
+            type="button"
             onClick={() => setIsLogin(!isLogin)}
             className="font-semibold text-blue-500 hover:underline"
           >
