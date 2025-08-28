@@ -11,7 +11,7 @@ export default function AuthPage({ children, title }) {
                         space-y-[20px]
                         rounded-4xl 
                         border-1 border-white">
-          <h1 class="text-[50px] text-black 
+          <h1 className="text-[50px] text-black 
                     font-bold 
                     drop-shadow-lg">{title}</h1>
           {children}
