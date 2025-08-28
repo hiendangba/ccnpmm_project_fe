@@ -21,7 +21,7 @@ export default function RegisterPage() {
   return (
     <>
       <AuthPage title="Đăng Ký">
-        <InputField placeholder='Nhập tài khoản' required className='w-[482px]'/>
+        <InputField placeholder='Nhập mssv' required className='w-[482px]'/>
         <InputField type="password" placeholder='Nhập mật khẩu' required className='w-[482px]'/>
         <InputField type="password" placeholder='Nhập lại mật khẩu' required className='w-[482px]'/>
         <InputField type="email" placeholder='Nhập mail' required className='w-[482px]'/>
