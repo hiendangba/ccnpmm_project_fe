@@ -5,6 +5,7 @@ import CheckboxField from '../common/CheckboxField';
 import TextWithLink from '../common/TextWithLink';
 import { useState } from 'react';
 import Toast from "../common/Toast";
+import authApi from "../../api/authApi";
 
 export default function LoginPage() {
     const [remember, setRemember] = useState(false);
@@ -12,15 +13,15 @@ export default function LoginPage() {
         setRemember(e.target.checked); 
         console.log(remember);
     };
-
-    // const [password, setPassword] = useState('');
-    const handleLoginClick = () => {
-        // const isSuccess = Math.random() > 0.5; 
-        // if (isSuccess) {
-        //     setToast({ message: "Đăng nhập thành công!", type: "success" });
-        // } else {
-        //     setToast({ message: "Sai tài khoản hoặc mật khẩu!", type: "error" });
-        // }
+    const [mssv, setMssv] = useState('');
+    const [password, setPassword] = useState('');
+    const handleLoginClick = async () => {
+        try {
+            const res = await authApi.login({ mssv, password});
+            setToast({ type: 'success', message: "Đăng nhập thành công" });
+        } catch (err) {
+            setToast({ type: 'error', message: "Lỗi đăng nhập: " + (err.response?.data?.message || err.message) });
+        }
     };
 
     const [toast, setToast] = useState(null);
@@ -28,8 +29,8 @@ export default function LoginPage() {
     return (
         <>
             <AuthPage title="Đăng Nhập">
-                <InputField placeholder='Nhập MSSV' required className='w-[482px]'/>
-                <InputField type="password" placeholder='Nhập mật khẩu' required className='w-[482px]'/>
+                <InputField placeholder='Nhập MSSV' required className='w-[482px]' value = {mssv} onChange={(e) => setMssv(e.target.value)}/>
+                <InputField type="password" placeholder='Nhập mật khẩu' required className='w-[482px]' value = {password} onChange={(e) => setPassword(e.target.value)}/>
                 <Button variant="auth" text="Đăng nhập" className='w-[482px]' onClick={handleLoginClick}/>
                 <div className="flex items-center justify-between w-[482px]">
                     <CheckboxField text="Nhớ mật khẩu" onChange={handleRememberChange}/>
