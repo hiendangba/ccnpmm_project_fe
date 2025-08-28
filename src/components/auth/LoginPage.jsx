@@ -28,7 +28,7 @@ export default function LoginPage() {
     return (
         <>
             <AuthPage title="Đăng Nhập">
-                <InputField placeholder='Nhập mssv' required className='w-[482px]'/>
+                <InputField placeholder='Nhập MSSV' required className='w-[482px]'/>
                 <InputField type="password" placeholder='Nhập mật khẩu' required className='w-[482px]'/>
                 <Button variant="auth" text="Đăng nhập" className='w-[482px]' onClick={handleLoginClick}/>
                 <div className="flex items-center justify-between w-[482px]">
