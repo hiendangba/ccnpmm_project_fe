@@ -17,8 +17,15 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const handleLoginClick = async () => {
         try {
-            const res = await authApi.login({ mssv, password});
+            
+            const response = await authApi.login({ mssv, password});
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.message || "Đăng nhập thất bại");
+            }
+            
             setToast({ type: 'success', message: "Đăng nhập thành công" });
+            
         } catch (err) {
             setToast({ type: 'error', message: "Lỗi đăng nhập: " + (err.response?.data?.message || err.message) });
         }
@@ -31,7 +38,7 @@ export default function LoginPage() {
             <AuthPage title="Đăng Nhập">
                 <InputField placeholder='Nhập MSSV' required className='w-[482px]' value = {mssv} onChange={(e) => setMssv(e.target.value)}/>
                 <InputField type="password" placeholder='Nhập mật khẩu' required className='w-[482px]' value = {password} onChange={(e) => setPassword(e.target.value)}/>
-                <Button variant="auth" text="Đăng nhập" className='w-[482px]' onClick={handleLoginClick}/>
+                <Button text="Đăng nhập" className='w-[482px]' onClick={handleLoginClick}/>
                 <div className="flex items-center justify-between w-[482px]">
                     <CheckboxField text="Nhớ mật khẩu" onChange={handleRememberChange}/>
                     <TextWithLink linkText="Quên mật khẩu" to="/forgot-password"/>

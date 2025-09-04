@@ -11,11 +11,9 @@ export default function VerifyOTPPage() {
   const [toast, setToast] = useState(null);
   const navigate = useNavigate();
 
-  // Lấy flowId và tryTime từ localStorage
   const flowId = localStorage.getItem("flowId");
   const tryTime = localStorage.getItem("tryTime");
 
-  // Hàm kiểm tra OTP
   const handleVerifyClick = async () => {
     if (!otp) {
       setToast({ message: "Vui lòng nhập OTP", type: "error" });
@@ -26,7 +24,7 @@ export default function VerifyOTPPage() {
       const response = await fetch("http://localhost:3000/api/auth/verify-otpFP", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ flowId, otp }), // gửi flowId và otp lên server
+        body: JSON.stringify({ flowId, otp }),
         credentials: "include"
       });
 
@@ -38,7 +36,6 @@ export default function VerifyOTPPage() {
       const data = await response.json();
       setToast({ message: data.message, type: "success" });
 
-      // ✅ Nếu OTP đúng → chuyển qua ResetPasswordPage
       navigate("/reset-password");
 
     } catch (error) {
@@ -46,7 +43,6 @@ export default function VerifyOTPPage() {
     }
   };
 
-  // Hàm gửi lại OTP
   const handleResendClick = async () => {
     try {
       const response = await fetch("http://localhost:3000/api/auth/resend-OTP", {
@@ -80,13 +76,11 @@ export default function VerifyOTPPage() {
           onChange={(e) => setOtp(e.target.value)}
         />
         <Button
-          variant="auth"
           text="Kiểm tra OTP"
           className="w-[482px]"
           onClick={handleVerifyClick}
         />
         <Button
-          variant="auth"
           text="Gửi lại OTP"
           className="w-[482px] mt-2"
           onClick={handleResendClick}

@@ -39,7 +39,6 @@ export default function ResetPasswordPage() {
       const data = await response.json();
       setToast({ message: data.message, type: "success" });
 
-      // ✅ Reset thành công → xóa flowId trong localStorage + điều hướng về login
       localStorage.removeItem("flowId");
       localStorage.removeItem("tryTime");
       setTimeout(() => navigate("/login"), 1500);

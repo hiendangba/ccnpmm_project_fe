@@ -3,9 +3,10 @@ export default function InputField({
   placeholder = "",
   value,
   onChange,
-  variant = "auth",
+  variant = "rounded",
   className = "",
-  required = false
+  required = true,
+  readOnly = false, 
 }) {
   const baseStyle =
     `px-10 py-2 
@@ -13,13 +14,13 @@ export default function InputField({
     focus:border-blue-500 focus:shadow-lg`;
 
   const variants = {
-    auth: 
-        `bg-white/50
-        rounded-4xl 
-        outline-none
-        text-black text-[24px] 
-        shadow-md  
-        border-3 border-transparent`,
+    rounded: 
+      `bg-white/50
+      rounded-4xl 
+      outline-none
+      text-black text-[24px] 
+      shadow-md  
+      border-3 border-transparent`,
   };
 
   return (
@@ -29,6 +30,7 @@ export default function InputField({
       value={value}
       onChange={onChange}
       required={required}
+      readOnly={readOnly}  
       className={`${baseStyle} ${variants[variant]} ${className}`}
     />
   );

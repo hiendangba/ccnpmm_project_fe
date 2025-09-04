@@ -2,8 +2,9 @@ export default function Button({
   type="button",
   text,
   onClick,
-  variant = "auth",
-  className = ""
+  variant = "rounded",
+  className = "",
+  disabled = false,
 }) {
   const baseStyle =
     `py-2 
@@ -11,7 +12,7 @@ export default function Button({
     hover:border-blue-500 hover:shadow-lg`;
 
 const variants = {
-  auth: 
+  rounded: 
     `bg-white 
     rounded-4xl
     text-black text-[24px]
@@ -25,6 +26,7 @@ const variants = {
     <button
       type={type}
       onClick={onClick}
+      disabled={disabled}
       className={`${baseStyle} ${variants[variant]} ${className}`}>
       {text}
     </button>
