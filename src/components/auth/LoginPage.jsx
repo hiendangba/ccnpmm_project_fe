@@ -6,28 +6,36 @@ import TextWithLink from '../common/TextWithLink';
 import { useState } from 'react';
 import Toast from "../common/Toast";
 import authApi from "../../api/authApi";
+import userApi from "../../api/userApi";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
+    const navigate = useNavigate();
+
     const [remember, setRemember] = useState(false);
+
     const handleRememberChange = (e) => {
         setRemember(e.target.checked); 
         console.log(remember);
     };
+
     const [mssv, setMssv] = useState('');
     const [password, setPassword] = useState('');
     const handleLoginClick = async () => {
         try {
-            
-            const response = await authApi.login({ mssv, password});
-            if (!response.ok) {
-                const err = await response.json();
-                throw new Error(err.message || "Đăng nhập thất bại");
+            const response = await authApi.login({ mssv, password });
+            localStorage.setItem("token",response.token); // lưu token
+            const res = await userApi.getProfile()
+            console.log(res)
+            if(!res.age && !res.gender && !res.bio && !res.address){
+                navigate("/update-profile", { state: { res } });
             }
-            
-            setToast({ type: 'success', message: "Đăng nhập thành công" });
-            
+            else{
+                navigate("/home");
+            }
         } catch (err) {
-            setToast({ type: 'error', message: "Lỗi đăng nhập: " + (err.response?.data?.message || err.message) });
+            const message = err.response?.data?.message || err.message || "Đăng nhập thất bại";
+            setToast({ type: 'error', message });
         }
     };
 

@@ -20,7 +20,6 @@ axiosClient.interceptors.request.use(
 // Interceptor cho response
 axiosClient.interceptors.response.use(
   (response) => {
-    // Trả luôn data (đỡ phải res.data ở component)
     return response.data;
   },
   (error) => {
