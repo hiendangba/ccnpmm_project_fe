@@ -14,14 +14,14 @@ export default function RegisterPage() {
   const [mssv, setMssv] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isEmailSent, setIsEmailSent] = useState("");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const [flowId, setFlowId] = useState("")
 
   const handleRegisterClick = async () => {
      try {
       
-      const res = await authApi.verifyOTP({ email: isEmailSent, otp });
+      const res = await authApi.verifyOTP({ flowId: flowId, otp });
       if(res){
         setToast({ type: 'success', message: "Đăng ký tài khoản thành công" });
         setTimeout(() => {
@@ -40,7 +40,7 @@ const handleSendOTPClick = async () => {
         return;
       }
       const res = await authApi.register({ name, mssv, password, email });
-      setIsEmailSent(email)
+      setFlowId(res.flowId)
       setToast({ type: 'success', message: res.message });
     } catch (err) {
       setToast({ type: 'error', message: "Lỗi đăng ký: " + (err.response?.data?.message || err.message) });

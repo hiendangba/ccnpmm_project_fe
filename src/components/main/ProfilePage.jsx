@@ -7,19 +7,23 @@ import Toast from "../common/Toast";
 import SelectField from '../common/SelectField';
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import userApi from "../../api/userApi"
 
-export default function ProfilePage({ avatar, name, mssv, email, dob, address, gd }) {
+export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, address, gd }) {
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const user = location.state?.res;
+  console.log(user)
   const initialData = useMemo(() => ({
-    avatar,
-    name,
-    mssv,
-    email,
-    dob,
-    address,
-    gender: gd || ""
-  }), [avatar, name, mssv, email, dob, address, gd]);
+    avatar: user?.avatar || avatar || "",
+    name: user?.name || name || "",
+    mssv: user?.mssv || mssv || "",
+    email: user?.email || email || "",
+    dateOfBirth: user?.dateOfBirth || dateOfBirth || "",
+    address: user?.address || address || "",
+    gender: user?.gender || gd || "nam"   // mặc định "nam"
+  }), [avatar, name, mssv, email, dateOfBirth, address, gd]);
 
   const [formData, setFormData] = useState(initialData);
   const [isChanged, setIsChanged] = useState(false);
@@ -40,10 +44,20 @@ export default function ProfilePage({ avatar, name, mssv, email, dob, address, g
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
-    setToast({ message: "Đã lưu thay đổi!", type: "success" });
-  };
-
+  const handleSave = async () => {
+        try {
+            const response = await userApi.updateProfile(formData);
+            if (response.name) {
+              setToast({ type: 'success', message: "Cập nhật thông tin thành công" });
+              setFormData(response);
+            } else {
+              setToast({ type: 'warning', message: "Cập nhật thông tin thất bại" });
+}
+        } catch (err) {
+            const message = err.response?.data?.message || err.message || "Lưu thông tin thất bại";
+            setToast({ type: 'error', message });
+        }
+    };
   return (
     <>
       <MainPage>
@@ -74,20 +88,20 @@ export default function ProfilePage({ avatar, name, mssv, email, dob, address, g
               onChange={(e) => handleChange("name", e.target.value)} />
             <InputField value={formData.email} placeholder="Nhập email của bạn" className='w-[482px]' readOnly />
             <InputField value={formData.mssv} placeholder="Nhập MSSV của bạn" className='w-[482px]' readOnly />
-            <InputField value={formData.dob} placeholder="Nhập ngày sinh của bạn" className='w-[482px]' type='date'
-              onChange={(e) => handleChange("dob", e.target.value)} />
+            <InputField value={formData.dateOfBirth} placeholder="Nhập ngày sinh của bạn" className='w-[482px]' type='date'
+              onChange={(e) => handleChange("dateOfBirth", e.target.value)} />
             <InputField value={formData.address} placeholder="Nhập địa chỉ của bạn" className='w-[482px]'
               onChange={(e) => handleChange("address", e.target.value)} />
 
             <SelectField
-              value={formData.gender}
+              value={formData.gender || user?.gender || "nam"} // mặc định "nam"
               fieldName="Giới tính"
               className='w-[482px]'
               onChange={(e) => handleChange("gender", e.target.value)}
               options={[
-                { value: "male", label: "Nam" },
-                { value: "female", label: "Nữ" },
-                { value: "other", label: "Khác" },
+                { value: "nam", label: "Nam" },
+                { value: "nữ", label: "Nữ" },
+                { value: "khác", label: "Khác" },
               ]}
             />
 

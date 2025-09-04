@@ -21,6 +21,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/list-member" element={<ListMemberPage />} />
+        <Route path="/update-profile" element={<ProfilePage />} />
       </Routes>
     </BrowserRouter>
   );
