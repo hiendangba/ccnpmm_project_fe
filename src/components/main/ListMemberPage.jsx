@@ -1,4 +1,3 @@
-import MainPage from './HomePage';
 import Picture from '../common/Picture';
 import AltAvatar from "../../assets/alt_avatar.png";
 import InputField from '../common/InputField';

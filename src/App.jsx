@@ -7,12 +7,13 @@ import VerifyOTPFPPage from './components/auth/VerifyOtpFP';
 import ResetPasswordPage from './components/auth/ResetPasswordPage';
 import ProfilePage from './components/main/ProfilePage';
 import ListMemberPage from './components/main/ListMemberPage';
+import HomePage from './components/main/HomePage';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />

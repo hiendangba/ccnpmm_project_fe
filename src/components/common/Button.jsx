@@ -12,13 +12,22 @@ export default function Button({
     hover:border-blue-500 hover:shadow-lg`;
 
 const variants = {
-  rounded: 
-    `bg-white 
+  rounded: `
+    bg-white 
     rounded-4xl
     text-black text-[24px]
     shadow-md
     border-3 border-transparent 
-    hover:border-blue-500 hover:shadow-lg`,
+    hover:border-blue-500 hover:shadow-lg
+    `,
+    hamburger: `
+      bg-white 
+      rounded-full
+      text-black text-[24px] font-bold
+      shadow-md
+      border-3 border-transparent
+      hover:border-blue-500 hover:shadow-lg
+    `,
 };
 
 
