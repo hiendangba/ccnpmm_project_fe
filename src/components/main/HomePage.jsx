@@ -1,4 +1,4 @@
-export default function MainPage({ children, title }) {
+export default function HomePage({ children, title }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-green-200">
         <div className="bg-white/50 
