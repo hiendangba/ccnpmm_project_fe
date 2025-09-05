@@ -10,6 +10,18 @@ const authApi = {
   verifyOTP(data) {
     return axiosClient.post("/auth/verify-otp", data);
   },
+  forgotPassword(data){
+    return axiosClient.post("/auth/forgot-password", data);
+  },
+  verifyOtpFP(data){
+    return axiosClient.post("/auth/verify-otpFP", data);
+  },
+  resendOTP(data){
+    return axiosClient.post("/auth/resend-OTP", data);
+  },
+  resetPassword(data){
+    return axiosClient.post("/auth/reset-password", data);
+  }
 };
 
 export default authApi;

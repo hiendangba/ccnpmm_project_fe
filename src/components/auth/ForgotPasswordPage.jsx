@@ -5,6 +5,7 @@ import TextWithLink from '../common/TextWithLink';
 import { useState } from 'react';
 import Toast from "../common/Toast";
 import { useNavigate } from "react-router-dom";
+import authApi from '../../api/authApi';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -20,26 +21,17 @@ export default function ForgotPasswordPage() {
       return;
     }
     try {
-      const response = await fetch("http://localhost:3000/api/auth/forgot-password/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }), 
-      });
+      const response = await authApi.forgotPassword({ email });
 
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || "Gửi OTP thất bại");
-      }
+      localStorage.setItem("flowId", response.flowId);
+      localStorage.setItem("tryTime", response.tryTime);
 
-      const data = await response.json();
-      localStorage.setItem("flowId", data.flowId);
-      localStorage.setItem("tryTime", data.tryTime);
-
-      setToast({ message: data.message , type: "success" });
+      setToast({ message: response.message , type: "success" });
       navigate("/verify-otpFP"); 
 
     } catch (error) {
-      setToast({ message: error.message, type: "error" });
+      const message = error.response?.data?.message || error.message || "Thất bại khi kết nối với máy chủ.";
+      setToast({ message: message, type: "error" });
     }
   };
 
