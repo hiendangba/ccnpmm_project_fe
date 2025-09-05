@@ -1,69 +1,38 @@
 import MainPage from './HomePage';
 import Button from '../common/Button';
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import userApi from "../../api/userApi"
+import Toast from "../common/Toast";
 
-export default function ListMemberPage({ students }) {
+export default function ListMemberPage() {
+  const [students, setStudents] = useState([]);
+  const [total, setTotal] = useState(0);  
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const res = await userApi.all({
+          page: currentPage,
+          limit: rowsPerPage
+        });
+        console.log(res)
+        setStudents(res.users); // giả sử API trả về mảng sinh viên
+        setTotal(res.total);
 
-  // Demo
-  const demoStudents = [
-    { name: "Nguyễn Văn A", mssv: "20210001", gender: "Nam", dob: "2002" },
-    { name: "Trần Thị B", mssv: "20210002", gender: "Nữ", dob: "2001" },
-    { name: "Lê Văn C", mssv: "20210003", gender: "Nam", dob: "2003" },
-    { name: "Phạm Thị D", mssv: "20210004", gender: "Nữ", dob: "2002" },
-    { name: "Nguyễn Văn E", mssv: "20210005", gender: "Nam", dob: "2000" },
-    { name: "Trần Thị F", mssv: "20210006", gender: "Nữ", dob: "2001" },
-    { name: "Lê Văn G", mssv: "20210007", gender: "Nam", dob: "2003" },
-    { name: "Phạm Thị H", mssv: "20210008", gender: "Nữ", dob: "2002" },
-    { name: "Nguyễn Văn I", mssv: "20210009", gender: "Nam", dob: "2002" },
-    { name: "Trần Thị K", mssv: "20210010", gender: "Nữ", dob: "2001" },
-    { name: "Nguyễn Văn A", mssv: "20210001", gender: "Nam", dob: "2002" },
-    { name: "Trần Thị B", mssv: "20210002", gender: "Nữ", dob: "2001" },
-    { name: "Lê Văn C", mssv: "20210003", gender: "Nam", dob: "2003" },
-    { name: "Phạm Thị D", mssv: "20210004", gender: "Nữ", dob: "2002" },
-    { name: "Nguyễn Văn E", mssv: "20210005", gender: "Nam", dob: "2000" },
-    { name: "Trần Thị F", mssv: "20210006", gender: "Nữ", dob: "2001" },
-    { name: "Lê Văn G", mssv: "20210007", gender: "Nam", dob: "2003" },
-    { name: "Phạm Thị H", mssv: "20210008", gender: "Nữ", dob: "2002" },
-    { name: "Nguyễn Văn I", mssv: "20210009", gender: "Nam", dob: "2002" },
-    { name: "Trần Thị K", mssv: "20210010", gender: "Nữ", dob: "2001" },
-    { name: "Nguyễn Văn A", mssv: "20210001", gender: "Nam", dob: "2002" },
-    { name: "Trần Thị B", mssv: "20210002", gender: "Nữ", dob: "2001" },
-    { name: "Lê Văn C", mssv: "20210003", gender: "Nam", dob: "2003" },
-    { name: "Phạm Thị D", mssv: "20210004", gender: "Nữ", dob: "2002" },
-    { name: "Nguyễn Văn E", mssv: "20210005", gender: "Nam", dob: "2000" },
-    { name: "Trần Thị F", mssv: "20210006", gender: "Nữ", dob: "2001" },
-    { name: "Lê Văn G", mssv: "20210007", gender: "Nam", dob: "2003" },
-    { name: "Phạm Thị H", mssv: "20210008", gender: "Nữ", dob: "2002" },
-    { name: "Nguyễn Văn I", mssv: "20210009", gender: "Nam", dob: "2002" },
-    { name: "Trần Thị K", mssv: "20210010", gender: "Nữ", dob: "2001" },
-    { name: "Nguyễn Văn A", mssv: "20210001", gender: "Nam", dob: "2002" },
-    { name: "Trần Thị B", mssv: "20210002", gender: "Nữ", dob: "2001" },
-    { name: "Lê Văn C", mssv: "20210003", gender: "Nam", dob: "2003" },
-    { name: "Phạm Thị D", mssv: "20210004", gender: "Nữ", dob: "2002" },
-    { name: "Nguyễn Văn E", mssv: "20210005", gender: "Nam", dob: "2000" },
-    { name: "Trần Thị F", mssv: "20210006", gender: "Nữ", dob: "2001" },
-    { name: "Lê Văn G", mssv: "20210007", gender: "Nam", dob: "2003" },
-    { name: "Phạm Thị H", mssv: "20210008", gender: "Nữ", dob: "2002" },
-    { name: "Nguyễn Văn I", mssv: "20210009", gender: "Nam", dob: "2002" },
-    { name: "Trần Thị K", mssv: "20210010", gender: "Nữ", dob: "2001" },
-    { name: "Nguyễn Văn A", mssv: "20210001", gender: "Nam", dob: "2002" },
-    { name: "Trần Thị B", mssv: "20210002", gender: "Nữ", dob: "2001" },
-    { name: "Lê Văn C", mssv: "20210003", gender: "Nam", dob: "2003" },
-    { name: "Phạm Thị D", mssv: "20210004", gender: "Nữ", dob: "2002" },
-    { name: "Nguyễn Văn E", mssv: "20210005", gender: "Nam", dob: "2000" },
-    { name: "Trần Thị F", mssv: "20210006", gender: "Nữ", dob: "2001" },
-    { name: "Lê Văn G", mssv: "20210007", gender: "Nam", dob: "2003" },
-    { name: "Phạm Thị H", mssv: "20210008", gender: "Nữ", dob: "2002" },
-    { name: "Nguyễn Văn I", mssv: "20210009", gender: "Nam", dob: "2002" },
-    { name: "Trần Thị K", mssv: "20210010", gender: "Nữ", dob: "2001" },
-  ];
+      } catch (err) {
+        const message = err.response?.data?.message || err.message || "lấy thông tin users thất bại";
+        setToast({ type: 'error', message });      
+      } 
+    };
 
-  const data = students && students.length > 0 ? students : demoStudents;
+    fetchStudents();
+  }, []);
 
+  const data = students || [];
   // Pagination
   const rowsPerPage = 5;
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(data.length / rowsPerPage);
+
+  const totalPages = Math.ceil(total / rowsPerPage);
 
   const startIndex = (currentPage - 1) * rowsPerPage;
   const currentData = data.slice(startIndex, startIndex + rowsPerPage);
@@ -91,7 +60,7 @@ export default function ListMemberPage({ students }) {
               <tr>
                 <th className="py-3 px-4 border text-left">Tên</th>
                 <th className="py-3 px-4 border text-left">MSSV</th>
-                <th className="py-3 px-4 border">Giới tính</th>
+                <th className="py-3 px-4 border">Email</th>
                 <th className="py-3 px-4 border">Năm sinh</th>
               </tr>
             </thead>
@@ -105,8 +74,8 @@ export default function ListMemberPage({ students }) {
                 >
                   <td className="py-3 px-4 border text-left">{student.name}</td>
                   <td className="py-3 px-4 border text-left">{student.mssv}</td>
-                  <td className="py-3 px-4 border">{student.gender}</td>
-                  <td className="py-3 px-4 border">{student.dob}</td>
+                  <td className="py-3 px-4 border">{student.email}</td>
+                  <td className="py-3 px-4 border">{student.dateOfBirth}</td>
                 </tr>
               ))}
             </tbody>

@@ -26,7 +26,6 @@ export default function LoginPage() {
             const response = await authApi.login({ mssv, password });
             localStorage.setItem("token",response.token); // lưu token
             const res = await userApi.getProfile()
-            console.log(res)
             if(!res.age && !res.gender && !res.bio && !res.address){
                 navigate("/update-profile", { state: { res } });
             }

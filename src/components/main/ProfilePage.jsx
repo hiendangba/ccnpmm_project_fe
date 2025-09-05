@@ -14,7 +14,6 @@ export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, ad
   const navigate = useNavigate();
   const location = useLocation();
   const user = location.state?.res;
-  console.log(user)
   const initialData = useMemo(() => ({
     avatar: user?.avatar || avatar || "",
     name: user?.name || name || "",
@@ -49,10 +48,17 @@ export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, ad
             const response = await userApi.updateProfile(formData);
             if (response.name) {
               setToast({ type: 'success', message: "Cập nhật thông tin thành công" });
-              setFormData(response);
+              console.log(response)
+              const formattedResponse = {
+              ...response,
+              dateOfBirth: response.dateOfBirth 
+              ? new Date(response.dateOfBirth).toISOString().split("T")[0] 
+               : ""
+              };
+              setFormData(formattedResponse);
             } else {
               setToast({ type: 'warning', message: "Cập nhật thông tin thất bại" });
-}
+            }
         } catch (err) {
             const message = err.response?.data?.message || err.message || "Lưu thông tin thất bại";
             setToast({ type: 'error', message });
