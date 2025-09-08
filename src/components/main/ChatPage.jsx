@@ -1,63 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from "react";
 import MainPage from './HomePage';
 import Picture from '../common/Picture';
 import AltAvatar from "../../assets/alt_avatar.png";
 import InputField from '../common/InputField';
 import ChatWindow from './ChatWindow';
-
-// Dữ liệu ảo cho danh sách người dùng
-const mockUsers = [
-  {
-    id: 1,
-    name: "Nguyễn Văn A",
-    avatar: AltAvatar,
-    lastMessage: "Chào bạn, hôm nay thế nào?",
-    timestamp: "5 giờ",
-    unreadCount: 2,
-    isOnline: true
-  },
-  {
-    id: 2,
-    name: "Trần Thị B",
-    avatar: AltAvatar,
-    lastMessage: "Cảm ơn bạn đã giúp đỡ",
-    timestamp: "6 giờ",
-    unreadCount: 0,
-    isOnline: false
-  },
-  {
-    id: 3,
-    name: "Lê Văn C",
-    avatar: AltAvatar,
-    lastMessage: "Tôi sẽ gửi file cho bạn",
-    timestamp: "9 giờ",
-    unreadCount: 1,
-    isOnline: true
-  },
-  {
-    id: 4,
-    name: "Phạm Thị D",
-    avatar: AltAvatar,
-    lastMessage: "Hẹn gặp lại bạn nhé",
-    timestamp: "13 giờ",
-    unreadCount: 0,
-    isOnline: false
-  },
-  {
-    id: 5,
-    name: "Hoàng Văn E",
-    avatar: AltAvatar,
-    lastMessage: "Bài tập này khó quá",
-    timestamp: "15 giờ",
-    unreadCount: 3,
-    isOnline: true
-  }
-];
+import userApi from "../../api/userApi"
+import Toast from "../common/Toast";
 
 
 export default function ChatPage() {
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [users, setUsers] = useState([]); // danh sách user
+  const [selectedUser, setSelectedUser] = useState();
+  const [toast, setToast] = useState(null);
 
+  const fetchStudents = async () => {
+    try {
+      const res = await userApi.all();
+      setUsers(res.users); // giả sử API trả về mảng sinh viên
+    } catch (err) {
+      const message = err.response?.data?.message || err.message || "lấy thông tin users thất bại";
+      setToast({ type: 'error', message });      
+    }
+  };
+
+
+  useEffect(() => {
+      fetchStudents();
+    }, []
+  );
+  
   const handleUserSelect = (user) => {
     setSelectedUser(user);
   };
@@ -82,7 +53,7 @@ export default function ChatPage() {
 
           {/* Chat List */}
           <div className="flex-1 overflow-y-auto">
-            {mockUsers.map((user) => (
+            {users.map((user) => (
               <div
                 key={user.id}
                 onClick={() => handleUserSelect(user)}

@@ -1,42 +1,63 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Picture from '../common/Picture';
 import Button from '../common/Button';
 import InputField from '../common/InputField';
-
-// Dữ liệu ảo cho tin nhắn
-const mockMessages = {
-  1: [
-    { id: 1, sender: "other", content: "Chào bạn!", timestamp: "14:30" },
-    { id: 2, sender: "me", content: "Chào bạn, hôm nay thế nào?", timestamp: "14:32" },
-    { id: 3, sender: "other", content: "Tôi khỏe, cảm ơn bạn", timestamp: "14:35" }
-  ],
-  2: [
-    { id: 1, sender: "other", content: "Cảm ơn bạn đã giúp đỡ", timestamp: "12:00" },
-    { id: 2, sender: "me", content: "Không có gì, bạn cần gì thêm không?", timestamp: "12:05" }
-  ],
-  3: [
-    { id: 1, sender: "other", content: "Tôi sẽ gửi file cho bạn", timestamp: "10:00" },
-    { id: 2, sender: "me", content: "Cảm ơn bạn", timestamp: "10:02" }
-  ],
-  4: [
-    { id: 1, sender: "other", content: "Hẹn gặp lại bạn nhé", timestamp: "08:00" },
-    { id: 2, sender: "me", content: "Chắc chắn rồi!", timestamp: "08:01" }
-  ],
-  5: [
-    { id: 1, sender: "other", content: "Bài tập này khó quá", timestamp: "16:00" },
-    { id: 2, sender: "me", content: "Tôi có thể giúp bạn", timestamp: "16:02" },
-    { id: 3, sender: "other", content: "Thật không? Cảm ơn bạn nhiều!", timestamp: "16:05" }
-  ]
-};
+import messageApi from "../../api/messageApi"
+import Toast from "../common/Toast";
+import { initSocket } from '../../socket/socket';
 
 export default function ChatWindow({ selectedUser }) {
   const [newMessage, setNewMessage] = useState('');
+  const [mockMessage,setMockMessage] = useState([]);
+  const [toast, setToast] = useState(null);
+  const [conversationId, setConversationId] = useState("");
 
-  const handleSendMessage = () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  useEffect(() => {
+    initSocket(conversationId, 
+      (message) => {
+        if(message.senderId != user.id)
+          setMockMessage(prev => [...prev, message]);
+      }
+    );
+  }, [conversationId]);
+
+
+  const fetchGetMessage = async () => {
+    try {
+      const res = await messageApi.getMessageOneToOne({
+        receiverId: selectedUser.id,
+      });
+      setMockMessage(res.data.messages); // giả sử API trả về mảng sinh viên
+      setConversationId(res.data.conversationId)
+    } catch (err) {
+      const message = err.response?.data?.message || err.message || "lấy thông tin users thất bại";
+      setToast({ type: 'error', message });      
+    }
+  };
+
+
+  useEffect(() => {
+      fetchGetMessage();
+    }, [selectedUser]
+  );
+
+
+  const handleSendMessage = async () => {
     if (newMessage.trim() && selectedUser) {
+      const res = await messageApi.sendMessage({conversationId: conversationId, content: newMessage})
+      console.log(res);
+
       // Ở đây sẽ thêm logic gửi tin nhắn
-      console.log('Gửi tin nhắn:', newMessage, 'đến:', selectedUser.name);
-      setNewMessage('');
+      setMockMessage((prev) => [...prev, {
+        _id: Date.now(), // tạm id
+        content: newMessage,
+        senderId: user.id,
+
+      }]);
+
+      setNewMessage('')
     }
   };
 
@@ -109,19 +130,19 @@ export default function ChatWindow({ selectedUser }) {
           </span>
         </div>
 
-        {mockMessages[selectedUser.id]?.map((message) => (
+        {mockMessage.map((message) => (
           <div
-            key={message.id}
-            className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}
+            key={message._id}
+            className={`flex ${message.senderId === user.id ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${message.sender === 'me'
+              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${message.senderId === user.id 
                   ? 'bg-blue-500 text-white'
                   : 'bg-white text-gray-900'
                 }`}
             >
               <p className="text-sm">{message.content}</p>
-              <p className={`text-xs mt-1 ${message.sender === 'me' ? 'text-blue-100' : 'text-gray-500'
+              <p className={`text-xs mt-1 ${message.senderId === user.id  ? 'text-blue-100' : 'text-gray-500'
                 }`}>
                 {message.timestamp}
               </p>
