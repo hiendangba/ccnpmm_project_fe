@@ -5,6 +5,7 @@ import TextWithLink from '../common/TextWithLink';
 import Toast from "../common/Toast";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import authApi from '../../api/authApi';
 
 export default function VerifyOTPPage() {
   const [otp, setOtp] = useState("");
@@ -21,46 +22,25 @@ export default function VerifyOTPPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/auth/verify-otpFP", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ flowId, otp }),
-        credentials: "include"
-      });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || "Xác thực OTP thất bại");
-      }
-
-      const data = await response.json();
-      setToast({ message: data.message, type: "success" });
+      const response = await authApi.verifyOtpFP({ flowId, otp });
+      setToast({ message: response.message, type: "success" });
 
       navigate("/reset-password");
 
     } catch (error) {
-      setToast({ message: error.message, type: "error" });
+      const message = error.response?.data?.message || error.message || "Thất bại khi kết nối với máy chủ.";
+      setToast({ message: message, type: "error" });
     }
   };
 
   const handleResendClick = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/auth/resend-OTP", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ flowId }),
-      });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || "Gửi lại OTP thất bại");
-      }
-
-      const data = await response.json();
-      setToast({ message: data.message, type: "success" });
+      const response = await authApi.resendOTP( { flowId } );
+      setToast({ message: response.message, type: "success" });
 
     } catch (error) {
-      setToast({ message: error.message, type: "error" });
+      const message = error.response?.data?.message || error.message || "Thất bại khi kết nối với máy chủ.";
+      setToast({ message: message, type: "error" });
     }
   };
 

@@ -8,6 +8,8 @@ import ResetPasswordPage from './components/auth/ResetPasswordPage';
 import ProfilePage from './components/main/ProfilePage';
 import ListMemberPage from './components/main/ListMemberPage';
 import HomePage from './components/main/HomePage';
+import UserPage from './components/main/UserPage';
+import ChatPage from './components/main/ChatPage';
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/list-member" element={<ListMemberPage />} />
         <Route path="/update-profile" element={<ProfilePage />} />
+        <Route path="/personal-page" element={<UserPage />} />
+        <Route path="/chat" element={<ChatPage />} />
       </Routes>
     </BrowserRouter>
   );

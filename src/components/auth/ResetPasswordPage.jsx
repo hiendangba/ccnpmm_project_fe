@@ -5,6 +5,7 @@ import TextWithLink from '../common/TextWithLink';
 import Toast from "../common/Toast";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import authApi from '../../api/authApi';
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
@@ -24,27 +25,16 @@ export default function ResetPasswordPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ newPassword: password }),
-        credentials: "include"
-      });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || "Đặt lại mật khẩu thất bại");
-      }
-
-      const data = await response.json();
-      setToast({ message: data.message, type: "success" });
+      const response = await authApi.resetPassword ({ newPassword: password });
+      setToast({ message: response.message, type: "success" });
 
       localStorage.removeItem("flowId");
       localStorage.removeItem("tryTime");
       setTimeout(() => navigate("/login"), 1500);
 
     } catch (error) {
-      setToast({ message: error.message, type: "error" });
+      const message = error.response?.data?.message || error.message || "Thất bại khi kết nối với máy chủ.";
+      setToast({ message: message, type: "error" });
     }
   };
 
@@ -68,7 +58,6 @@ export default function ResetPasswordPage() {
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
         <Button
-          variant="auth"
           text="Cập nhật"
           className="w-[482px] mt-4"
           onClick={handleResetPasswordClick}

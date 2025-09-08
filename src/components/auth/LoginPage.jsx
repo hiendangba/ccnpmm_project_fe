@@ -26,11 +26,12 @@ export default function LoginPage() {
             const response = await authApi.login({ mssv, password });
             localStorage.setItem("token",response.token); // lưu token
             const res = await userApi.getProfile()
+            localStorage.setItem("user", JSON.stringify(res));
             if(!res.age && !res.gender && !res.bio && !res.address){
                 navigate("/update-profile", { state: { res } });
             }
             else{
-                navigate("/home");
+                navigate("/");
             }
         } catch (err) {
             const message = err.response?.data?.message || err.message || "Đăng nhập thất bại";
