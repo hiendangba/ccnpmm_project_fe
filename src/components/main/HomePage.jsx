@@ -56,8 +56,14 @@ export default function HomePage({ children, avatar, name }) {
             <li className="cursor-pointer hover:text-blue-500 hover:translate-x-2 transition-transform duration-200">
               Trang chủ
             </li>
+            <li className="cursor-pointer hover:text-blue-500 hover:translate-x-2 transition-transform duration-200" onClick={() => navigate("/personal-page")}>
+              Trang cá nhân
+            </li>
             <li className="cursor-pointer hover:text-blue-500 hover:translate-x-2 transition-transform duration-200" onClick={() => navigate("/list-member")}>
               Danh sách sinh viên
+            </li>
+            <li className="cursor-pointer hover:text-blue-500 hover:translate-x-2 transition-transform duration-200" onClick={() => navigate("/chat")}>
+              Nhắn tin
             </li>
             <li className="cursor-pointer hover:text-blue-500 hover:translate-x-2 transition-transform duration-200">
               Cài đặt

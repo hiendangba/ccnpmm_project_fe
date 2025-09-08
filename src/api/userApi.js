@@ -10,6 +10,12 @@ const userApi = {
   updateProfile(data) {
     return axiosClient.put("/user/profile", data);
   },
+  postNew(data){
+    return axiosClient.post("/user/postNew", data);
+  },
+  searchUser (data){
+    return axiosClient.post("/user/find-user", data);
+  }
 };
 
 export default userApi;
