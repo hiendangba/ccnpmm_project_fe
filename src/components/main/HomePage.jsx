@@ -9,13 +9,13 @@ export default function HomePage({ children, avatar, name }) {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col bg-green-200 relative">
+    <div className="min-h-screen flex flex-col bg-white relative">
       {!open && (
         <Button
           text="☰"
           variant="hamburger"
           onClick={() => setOpen(true)}
-          className="w-[70px] h-[70px] absolute top-6 left-6 z-50"
+          className="w-[70px] h-[70px] absolute top-6 left-6 z-50 opacity-30 hover:opacity-80 transition"
         />
       )}
       {open && (
