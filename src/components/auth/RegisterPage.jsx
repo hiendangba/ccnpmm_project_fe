@@ -22,6 +22,7 @@ export default function RegisterPage() {
      try {
       
       const res = await authApi.verifyOTP({ flowId: flowId, otp });
+      console.log(res);
       if(res){
         setToast({ type: 'success', message: "Đăng ký tài khoản thành công" });
         setTimeout(() => {
