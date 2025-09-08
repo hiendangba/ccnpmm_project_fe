@@ -5,7 +5,7 @@ const userApi = {
     return axiosClient.get("/user/profile", data); // không cần token
   },
   all(data) {
-    return axiosClient.get("/user/all", data); // không cần token
+    return axiosClient.get("/user/all", { params: data }); // data sẽ thành query string
   },
   updateProfile(data) {
     return axiosClient.put("/user/profile", data);
