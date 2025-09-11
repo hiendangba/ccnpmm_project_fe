@@ -7,6 +7,8 @@ export default function InputField({
   className = "",
   required = true,
   readOnly = false, 
+  ...props
+
 }) {
   const baseStyle =
     `px-10 py-2 
@@ -32,6 +34,8 @@ export default function InputField({
       required={required}
       readOnly={readOnly}  
       className={`${baseStyle} ${variants[variant]} ${className}`}
+      {...props}
+
     />
   );
 }

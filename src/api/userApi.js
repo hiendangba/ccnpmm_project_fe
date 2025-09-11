@@ -6,7 +6,7 @@ const userApi = {
   },
   all(data) {
     return axiosClient.get("/user/all", { params: data }); // data sẽ thành query string
-  },
+  },  
   updateProfile(data) {
     return axiosClient.put("/user/profile", data);
   },
