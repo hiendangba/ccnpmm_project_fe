@@ -2,30 +2,38 @@ import { io } from "socket.io-client";
 
 let socket = null;
 
-// Khởi tạo socket
-export const initSocket = (conversationId, onReceiveMessage, onMessageRead) => {
-  if (!conversationId) return;
+export const initSocket = () => {
+  if (!socket) {
+    socket = io("http://localhost:3001");
 
-  socket = io("http://localhost:3001"); 
-  socket.on("connect", () => {
-    console.log("Connected to socket server:", socket.id);
-    socket.emit("join", conversationId); // join room theo conversation
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Disconnected from socket server");
-  });
-
-  // Lắng nghe tin nhắn đến
-  socket.on("receiveMessage", (message) => {
-    if (typeof onReceiveMessage === "function") {
-      onReceiveMessage(message); // trả message về component
-    }
-  });
-
-  socket.on("errorMessage", (error) => {
-    console.error("Socket error:", error);
-  });
+    socket.on("connect", () => console.log("Socket connected:", socket.id));
+    socket.on("disconnect", () => console.log("Socket disconnected"));
+  }
+  return socket;
 };
-// Lấy socket instance
-export const getSocket = () => socket;
+
+export const joinRoom = (conversationId) => {
+  socket?.emit("join", conversationId);
+};
+
+export const leaveRoom = (conversationId) => {
+  socket?.emit("leave", conversationId);
+};
+
+export const onEvent = (event, handler, removePrevious = true) => {
+  if (removePrevious) socket?.off(event);
+  socket?.on(event, handler);
+};
+
+
+// Huỷ listener cụ thể
+export const offEvent = (event, handler) => {
+  if (!socket) return;
+  socket.off(event, handler);
+};
+
+// Huỷ tất cả listener
+export const offAllEvents = () => {
+  if (!socket) return;
+  socket.removeAllListeners();
+};
