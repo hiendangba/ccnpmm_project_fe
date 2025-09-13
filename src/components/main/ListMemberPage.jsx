@@ -42,6 +42,7 @@ export default function ListMemberPage() {
   useEffect(() => {
     fetchStudents();
   }, []);
+  
 
   const handleSearch = () => {
     setCurrentPage(1); // Reset về trang 1 khi tìm kiếm
