@@ -1,12 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../common/Button";
 import Picture from '../common/Picture';
 import AltAvatar from "../../assets/alt_avatar.png";
 import { useNavigate } from "react-router-dom";
+import Feed from "./Feed";
+import ImageViewer from "./ImageViewer";
+import postsApi from "../../api/postsApi";
 
-export default function HomePage({ children, avatar, name }) {
+export default function HomePage({ children, avatar, name, socket }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user")) || {};
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerImages, setViewerImages] = useState([]);
+  const [viewerIndex, setViewerIndex] = useState(0);
+
+  const openViewer = (images, startIndex = 0) => {
+    if (!images || images.length === 0) return;
+    setViewerImages(images);
+    setViewerIndex(startIndex);
+    setViewerOpen(true);
+  };
+
+  const closeViewer = () => setViewerOpen(false);
+  const showPrev = () => setViewerIndex((i) => (i - 1 + viewerImages.length) % viewerImages.length);
+  const showNext = () => setViewerIndex((i) => (i + 1) % viewerImages.length);
 
   return (
     <div className="min-h-screen flex flex-col bg-white relative">
@@ -53,7 +71,7 @@ export default function HomePage({ children, avatar, name }) {
             Zalo UTE
           </h2>
           <ul className="space-y-6 text-[24px] text-black">
-            <li className="cursor-pointer hover:text-blue-500 hover:translate-x-2 transition-transform duration-200">
+            <li className="cursor-pointer hover:text-blue-500 hover:translate-x-2 transition-transform duration-200" onClick={() => navigate("/")}>
               Trang chủ
             </li>
             <li className="cursor-pointer hover:text-blue-500 hover:translate-x-2 transition-transform duration-200" onClick={() => navigate("/personal-page")}>
@@ -75,7 +93,15 @@ export default function HomePage({ children, avatar, name }) {
         </div>
       </div>
 
-      {children}
+      {children || (
+        <div className="mt-6 flex w-full justify-center">
+          <div className="w-[1100px] px-6">
+            <Feed user={user} socket={socket} postsApi={postsApi} limit={2} userId="" onOpenViewer={openViewer} />
+          </div>
+        </div>
+      )}
+
+      <ImageViewer isOpen={viewerOpen} images={viewerImages} index={viewerIndex} onClose={closeViewer} onPrev={showPrev} onNext={showNext} />
     </div>
   );
 }

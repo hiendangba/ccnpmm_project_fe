@@ -31,12 +31,34 @@ const mockMessages = {
 
 export default function ChatWindow({ selectedUser }) {
   const [newMessage, setNewMessage] = useState('');
+  const [messages, setMessages] = useState(mockMessages);
 
   const handleSendMessage = () => {
     if (newMessage.trim() && selectedUser) {
-      // Ở đây sẽ thêm logic gửi tin nhắn
-      console.log('Gửi tin nhắn:', newMessage, 'đến:', selectedUser.name);
+      // Tạo tin nhắn mới
+      const newMsg = {
+        id: Date.now(), // ID tạm thời
+        sender: "me",
+        content: newMessage.trim(),
+        timestamp: new Date().toLocaleTimeString('vi-VN', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        })
+      };
+
+      // Cập nhật danh sách tin nhắn
+      setMessages(prev => ({
+        ...prev,
+        [selectedUser.id]: [
+          ...(prev[selectedUser.id] || []),
+          newMsg
+        ]
+      }));
+
+      // Xóa nội dung input
       setNewMessage('');
+      
+      console.log('Đã gửi tin nhắn:', newMsg.content, 'đến:', selectedUser.name);
     }
   };
 
@@ -109,7 +131,7 @@ export default function ChatWindow({ selectedUser }) {
           </span>
         </div>
 
-        {mockMessages[selectedUser.id]?.map((message) => (
+        {messages[selectedUser.id]?.map((message) => (
           <div
             key={message.id}
             className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}
