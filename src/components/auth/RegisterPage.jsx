@@ -59,8 +59,8 @@ const handleSendOTPClick = async () => {
         <InputField type="password" placeholder='Nhập lại mật khẩu' required className='w-[482px]' value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}/>
         <InputField type="email" placeholder='Nhập mail' required className='w-[482px]' value={email} onChange={(e) => setEmail(e.target.value)}/>
         <div className="flex items-center justify-between w-[482px]">
-          <InputField placeholder='Nhập OTP' required className='w-[321px]' value={otp} onChange={(e) => setOtp(e.target.value)}/>
-          <Button text="Gửi lại OTP" className='w-[151px]' onClick={handleSendOTPClick}/>
+          <InputField placeholder='Nhập OTP' required className='w-[301px]' value={otp} onChange={(e) => setOtp(e.target.value)}/>
+          <Button text="Gửi lại OTP" className='w-[171px]' onClick={handleSendOTPClick}/>
         </div>
         <Button text="Đăng ký" className='w-[482px]' onClick={handleRegisterClick}/>
         <TextWithLink text="Đã có tài khoản?" linkText="Đăng nhập" to="/login"/>

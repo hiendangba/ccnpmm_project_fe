@@ -16,7 +16,7 @@ const variants = {
   rounded: `
     bg-white 
     rounded-4xl
-    text-black text-[16px]
+    text-black text-[24px]
     shadow-md
     border-3 border-transparent 
     hover:border-blue-500 hover:shadow-lg
@@ -33,7 +33,7 @@ const variants = {
     outline: `
       bg-white
       rounded-4xl
-      text-black text-[16px]
+      text-black text-[24px]
       border-2 border-gray-300
       hover:border-blue-500 hover:bg-gray-50
       px-4
