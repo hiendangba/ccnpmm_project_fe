@@ -1,4 +1,4 @@
-export default function Avatar({
+export default function Picture({
   src,
   alt = "avatar",
   variant = "circle",

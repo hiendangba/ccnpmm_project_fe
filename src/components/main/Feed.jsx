@@ -4,6 +4,7 @@ import Picture from "../common/Picture";
 import AltAvatar from "../../assets/alt_avatar.png";
 import { Image as ImageIcon, Send, ThumbsUp, MessageCircle, Share2 } from "lucide-react";
 import userApi from "../../api/userApi";
+import InputField from "../common/InputField";
 
 export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, isPersonal }) {
     const [posts, setPosts] = useState([]);
@@ -172,18 +173,20 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
     };
 
     return (
-        <div className="flex flex-col w-2/3 gap-4">
+        <div className="flex flex-col max-w-[700px] w-full mx-auto gap-4">
             {/* Composer */}
-            <div className="bg-white p-4 rounded-lg shadow-sm border">
+            <div className="bg-white p-8 rounded-lg shadow-sm">
                 <div className="flex gap-3">
-                    <Picture src={user.avatarUrl ?? AltAvatar} size="sm" variant="circle" className="w-10 h-10" />
-                    <textarea
+                    <Picture src={user.avatarUrl ?? AltAvatar} variant="circle" className="w-20 h-20" />
+                    <InputField
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         placeholder="Bạn đang nghĩ gì?"
-                        className="flex-1 p-3 bg-gray-100 rounded-xl resize-none focus:outline-none focus:bg-gray-50"
+                        variant="ghost"
+                        className="h-[100px] text-[20px]"
                         rows={3}
                     />
+                    
                 </div>
                 {selectedImages.length > 0 && (
                     <div className="mt-3 grid grid-cols-2 gap-2">

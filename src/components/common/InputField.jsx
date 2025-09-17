@@ -11,18 +11,23 @@ export default function InputField({
 
 }) {
   const baseStyle =
-    `px-10 py-2 
-    transition-all duration-200
-    focus:border-blue-500 focus:shadow-lg`;
+    `transition-all duration-200`;
 
   const variants = {
     rounded: 
-      `bg-white/50
+      `px-10 py-2
+      bg-white/50
       rounded-4xl 
       outline-none
       text-black text-[24px] 
       shadow-md  
-      border-3 border-transparent`,
+      border-3 border-transparent
+      focus:border-blue-500 focus:shadow-lg`,
+    ghost:
+      `flex-1 p-10 bg-gray-100 
+      rounded-xl 
+      resize-none 
+      focus:outline-none focus:bg-gray-50`
   };
 
   return (
