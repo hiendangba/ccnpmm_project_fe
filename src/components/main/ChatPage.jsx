@@ -58,7 +58,7 @@ export default function ChatPage() {
             });
           }, false);
         }
-      } catch(err) {
+      } catch (err) {
         const message = err.response?.data?.message || err.message || "Lấy danh sách cuộc trò chuyện thất bại";
         setToast({ type: 'error', message });
       }
@@ -122,59 +122,58 @@ export default function ChatPage() {
                 <div
                   key={conv.conversationId}
                   onClick={() => handleConversationSelect(conv)}
-                  className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
-                    selectedConversation?.conversationId === conv.conversationId
+                  className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${selectedConversation?.conversationId === conv.conversationId
                       ? "bg-blue-50 border-r-4 border-r-blue-500"
                       : ""
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 relative flex items-center">
-                        {conv.isGroup
-                          ? (
-                            <>
-                              {conv.members.slice(0,3).map((m,index) => (
-                                <img
-                                  key={index}
-                                  src={m.avatar || AltAvatar}
-                                  alt="avatar"
-                                  className={`w-6 h-6 rounded-full border-2 border-white
+                    <div className="w-12 h-12 relative flex items-center">
+                      {conv.isGroup
+                        ? (
+                          <>
+                            {conv.members.slice(0, 3).map((m, index) => (
+                              <img
+                                key={index}
+                                src={m.avatar || AltAvatar}
+                                alt="avatar"
+                                className={`w-6 h-6 rounded-full border-2 border-white
                                     ${index === 0 ? 'z-10' : '-ml-2 z-20'}`}
-                                />
-                              ))}
-                              {conv.members.length > 3 && (
-                                <div className="-ml-2 w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs font-semibold border-2 border-white z-30">
-                                  +{conv.members.length - 3}
-                                </div>
-                              )}
-                            </>
-                          )
-                          : (
-                            <img
-                              src={conv.members[0]?.avatar || AltAvatar}
-                              alt={convName}
-                              className="w-12 h-12 rounded-full"
-                            />
-                          )
-                        }
-                      </div>
+                              />
+                            ))}
+                            {conv.members.length > 3 && (
+                              <div className="-ml-2 w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs font-semibold border-2 border-white z-30">
+                                +{conv.members.length - 3}
+                              </div>
+                            )}
+                          </>
+                        )
+                        : (
+                          <img
+                            src={conv.members[0]?.avatar || AltAvatar}
+                            alt={convName}
+                            className="w-12 h-12 rounded-full"
+                          />
+                        )
+                      }
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start">
                         <h3 className="text-sm font-medium text-gray-900 truncate">{convName}</h3>
                         <span className="text-xs text-gray-500 ml-2">
                           {lastMessage
                             ? new Date(lastMessage.createdAt).toLocaleTimeString("vi-VN", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
                             : ""}
                         </span>
                       </div>
-                        <p className={`text-sm truncate 
+                      <p className={`text-sm truncate 
                           ${lastMessage?.senderId === currentUserId ? 'text-gray-900' : 'text-gray-600'} 
                           ${isUnread ? 'font-bold text-black' : ''}`}>
-                          {lastMessageText}
-                        </p>
+                        {lastMessageText}
+                      </p>
                     </div>
                   </div>
                 </div>

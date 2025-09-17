@@ -21,6 +21,9 @@ const authApi = {
   },
   resetPassword(data){
     return axiosClient.post("/auth/reset-password", data);
+  },
+  refreshToken(){
+    return axiosClient.post("/auth/refreshToken");
   }
 };
 

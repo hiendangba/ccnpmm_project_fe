@@ -15,7 +15,8 @@ const userApi = {
   },
   searchUser (data){
     return axiosClient.post("/user/find-user", data);
-  }
+  },
+  
 };
 
 export default userApi;
