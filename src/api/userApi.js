@@ -11,7 +11,11 @@ const userApi = {
     return axiosClient.put("/user/profile", data);
   },
   postNew(data){
-    return axiosClient.post("/user/postNew", data);
+    return axiosClient.post("/user/postNew", data, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    });
   },
   searchUser (data){
     return axiosClient.post("/user/find-user", data);
