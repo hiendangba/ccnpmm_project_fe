@@ -12,11 +12,11 @@ import ImageViewer from "./ImageViewer";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function UserPage() {
+export default function UserPage( {socket} ) {
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem("user"));
     // Lấy từ localStorage nếu có, nếu không có thì chuyển sang trang đăng nhập
-    const limit = 2;
+    const limit = 5;
 
     useEffect(() => {
         if (!user) {
@@ -122,7 +122,7 @@ export default function UserPage() {
                             </div>
                         </div>
                     </div>
-                    <Feed user={user} postsApi={postsApi} limit={limit} onOpenViewer={openViewer} />
+                    <Feed user={user} socket={socket} postsApi={postsApi} limit={limit} onOpenViewer={openViewer} isPersonal={true} />
                 </div>
 
                 <ImageViewer isOpen={viewerOpen} images={viewerImages} index={viewerIndex} onClose={closeViewer} onPrev={showPrev} onNext={showNext} />

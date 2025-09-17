@@ -5,7 +5,7 @@ import AltAvatar from "../../assets/alt_avatar.png";
 import { Image as ImageIcon, Send, ThumbsUp, MessageCircle, Share2 } from "lucide-react";
 import userApi from "../../api/userApi";
 
-export default function Feed({ user, socket, postsApi, limit = 2, onOpenViewer, userId }) {
+export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, isPersonal }) {
     const [posts, setPosts] = useState([]);
     const [content, setContent] = useState("");
     const [selectedImages, setSelectedImages] = useState([]);
@@ -16,6 +16,7 @@ export default function Feed({ user, socket, postsApi, limit = 2, onOpenViewer, 
     const sentinelRef = useRef(null);
     const fileInputRef = useRef(null);
     const loadingPageRef = useRef(null);
+    // const [liked, setLiked] = useState(false);
 
     const fetchPosts = async (page = currentPage) => {
         try {
@@ -27,32 +28,79 @@ export default function Feed({ user, socket, postsApi, limit = 2, onOpenViewer, 
             const result = await postsApi.getAllPost({
                 page,
                 limit,
-                userId: userId !== undefined ? userId : user.id,
+                userId: isPersonal ? user.id : ""
             });
 
+            console.log(result);
+
             const list = result.listResult || [];
+
             setPosts((prev) => {
                 const existing = new Set(prev.map((p) => p.id));
                 const unique = list.filter((p) => !existing.has(p.id));
                 return [...prev, ...unique];
             });
-            setCurrentPage(page + 1);
+
+            // tăng page nếu có dữ liệu
+            if (list.length > 0) {
+                setCurrentPage((prev) => prev + 1);
+            }
+
             setHasMore(list.length === limit);
+
+            // ✅ reset sau khi thành công
+            loadingPageRef.current = null;
+
         } catch (err) {
             const message = err.response?.data?.message || err.message || "Thất bại khi kết nối với máy chủ.";
             setToast({ message, type: "error" });
         } finally {
             setIsLoading(false);
-            loadingPageRef.current = null;
         }
     };
+
     useEffect(() => {
         if (!socket) return;
+        // Khi có bài viết mới
         socket.on("USER_UPLOAD_POST", (post) => {
-            setPosts((prev) => [...prev, post]); // thêm bài viết mới vào state của Feed
+            console.log(post);
+            if (post.user.id !== user.id){
+                setPosts((prev) => [...prev, post]); // thêm bài viết mới vào state của Feed
+            }
         });
 
-        return () => socket.off("USER_UPLOAD_POST");
+        // Khi có like/unlike
+        socket.on("USER_LIKE", (likeResponseDTO) => {
+            console.log(likeResponseDTO);
+            setPosts((prev) =>
+                prev.map((p) => {
+                    if (p.id === likeResponseDTO.postId) {
+                        let updatedLikeUsers;
+                        if (likeResponseDTO.liked) {
+                            // nếu như đó là like  + thêm user vào list
+                            const exists = p.likeUsers.some((u) =>
+                                String(u.id) === String(likeResponseDTO.likeUser.id)
+                            );
+                            updatedLikeUsers = exists ? p.likeUsers : [...p.likeUsers, likeResponseDTO.likeUser];
+                        }
+                        else {
+                            // nếu như nó là unlike thì xóa ra
+                            updatedLikeUsers = p.likeUsers.filter(
+                                (u) => String(u.id) !== String(likeResponseDTO.likeUser.id)
+                            );
+                        }
+                        return {
+                            ...p,
+                            likeCount: likeResponseDTO.liked ? p.likeCount + 1 : p.likeCount - 1,
+                            likeUsers: updatedLikeUsers,
+                        }
+                    }
+                    return p;
+                })
+            );
+        });
+
+        return () => { socket.off("USER_UPLOAD_POST"); socket.off("USER_LIKE"); };
     }, [socket]);
 
     useEffect(() => {
@@ -68,14 +116,14 @@ export default function Feed({ user, socket, postsApi, limit = 2, onOpenViewer, 
             (entries) => {
                 const entry = entries[0];
                 if (entry.isIntersecting && !isLoading) {
-                    fetchPosts(currentPage);
+                    fetchPosts();
                 }
             },
             { root: null, rootMargin: "300px 0px", threshold: 0 }
         );
         obs.observe(node);
         return () => obs.disconnect();
-    }, [hasMore, isLoading, currentPage]);
+    }, [hasMore, isLoading]);
 
     const handleOpenPicker = () => fileInputRef.current?.click();
     const handleFilesChange = (e) => {
@@ -93,12 +141,30 @@ export default function Feed({ user, socket, postsApi, limit = 2, onOpenViewer, 
         try {
             const result = await userApi.postNew(formData);
             const savedPost = result.post;
+            console.log(savedPost);
             if (savedPost && savedPost.id) {
                 setPosts((prev) => [savedPost, ...prev]);
                 setContent("");
                 setSelectedImages([]);
                 setToast({ message: result.message, type: "success" });
             }
+        } catch (err) {
+            const message = err.response?.data?.message || err.message || "Thất bại khi kết nối với máy chủ.";
+            setToast({ message, type: "error" });
+        }
+    };
+
+    const handleToggleLike = async (postId) => {
+        try {
+            await postsApi.likePost({ postId });
+            setPosts((prev) => 
+                prev.map((p) => 
+                    p.id === postId ? {
+                        ...p,
+                        liked: !p.liked,
+                    } : p
+                )
+            );
         } catch (err) {
             const message = err.response?.data?.message || err.message || "Thất bại khi kết nối với máy chủ.";
             setToast({ message, type: "error" });
@@ -156,7 +222,7 @@ export default function Feed({ user, socket, postsApi, limit = 2, onOpenViewer, 
                     <div className="flex items-center gap-3 mb-3">
                         <Picture src={user.avatarUrl ?? AltAvatar} size="sm" variant="circle" className="w-10 h-10" />
                         <div>
-                            <p className="font-semibold">{user.name}</p>
+                            <p className="font-semibold">{post.user.name}</p>
                             <p className="text-gray-400 text-xs">{new Date(post.createdAt).toLocaleString()}</p>
                         </div>
                     </div>
@@ -176,10 +242,33 @@ export default function Feed({ user, socket, postsApi, limit = 2, onOpenViewer, 
                             ))}
                         </div>
                     )}
-                    <div className="mt-3 border-t pt-3 grid grid-cols-3 text-center text-sm text-gray-600">
-                        <button className="py-2 rounded hover:bg-gray-100">
+
+                    {/* Hiển thị số lượng tương tác */}
+                    <div className="mt-3 pt-3 flex items-center justify-between text-sm text-gray-600">
+                        <div className="flex items-center gap-4">
+                            {post.likeCount > 0 && (
+                                <span className="inline-flex items-center gap-1">
+                                    <ThumbsUp className="w-4 h-4 fill-blue-600 text-blue-600" />
+                                    <span>{post.likeCount}</span>
+                                </span>
+                            )}
+                            {post.commentCount > 0 && (
+                                <span>{post.commentCount} bình luận</span>
+                            )}
+                        </div>
+                        {post.shareCount > 0 && (
+                            <span>{post.shareCount} lượt chia sẻ</span>
+                        )}
+                    </div>
+
+                    {/* Các nút hành động */}
+                    <div className="border-t pt-3 grid grid-cols-3 text-center text-sm text-gray-600">
+                        <button className={`py-2 rounded hover:bg-gray-100 inline-flex items-center gap-2 justify-center 
+                            ${post.liked ? "text-blue-600 font-semibold" : "text-gray-700"}`}
+                            onClick={() => handleToggleLike(post.id)}
+                        >
                             <span className="inline-flex items-center gap-2 justify-center">
-                                <ThumbsUp className="w-4 h-4" />
+                                <ThumbsUp className={`w-4 h-4 ${post.liked ? "fill-blue-600" : ""}`} />
                                 <span>Thích</span>
                             </span>
                         </button>

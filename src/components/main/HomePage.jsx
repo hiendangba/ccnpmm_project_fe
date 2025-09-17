@@ -96,7 +96,7 @@ export default function HomePage({ children, avatar, name, socket }) {
       {children || (
         <div className="mt-6 flex w-full justify-center">
           <div className="w-[1100px] px-6">
-            <Feed user={user} socket={socket} postsApi={postsApi} limit={2} userId="" onOpenViewer={openViewer} />
+            <Feed user={user} socket={socket} postsApi={postsApi} limit={5} onOpenViewer={openViewer} isPersonal={false} />
           </div>
         </div>
       )}
