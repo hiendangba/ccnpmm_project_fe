@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useRef, useEffect } from "react";
 import IncomingCallModal from "../components/call/IncomingCallModal";
 import OutgoingCallModal from "../components/call/OutgoingCallModal";
+import CallScreen from "../components/call/CallScreen";
 import { initSocket, onEvent, joinRoom } from "../socket/socket";
 import messageApi from "../api/messageApi";
 import { getFakeMediaStream } from "../utils/fakeMedia";
@@ -13,7 +14,7 @@ export const CallProvider = ({ children, currentUser, }) => {
   const [isCalling, setIsCalling] = useState(false);
   const [incomingCall, setIncomingCall] = useState(null);
   const [outgoingCall, setOutgoingCall] = useState(null);
-
+  const [activeCall, setActiveCall] = useState(null);
   const pcRef = useRef(null);
   const socketRef = useRef(null);
 
@@ -44,7 +45,7 @@ export const CallProvider = ({ children, currentUser, }) => {
         onEvent("call-accepted", (data) => {
             if(data.from !== currentUser.id)
             {
-                handleCallAccepted(data.conversationId)
+                handleCallAccepted(data.conversation)
                 setOutgoingCall(null); // đóng modal cuộc gọi đến
             }
         });
@@ -52,7 +53,7 @@ export const CallProvider = ({ children, currentUser, }) => {
         onEvent("call-offer", (data) => {
             if(data.from !== currentUser.id)
             {
-                handleIncomingOffer(data.offer,data.conversationId)
+                handleIncomingOffer(data.offer,data.conversation)
             }
         });
 
@@ -69,12 +70,18 @@ export const CallProvider = ({ children, currentUser, }) => {
             }
         });
 
+        onEvent("call-ended", (data) => {
+          if(data.from !== currentUser.id){
+            handleEndCall(data.conversationId); 
+          }
+        })
+
         return () => {
             socketRef.current = null;
         };
     }, [currentUser.id]);
 
-    const handleCallAccepted = async (conversationId) => {
+    const handleCallAccepted = async (conversation) => {
         try {
             // 1. Lấy local media
             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -97,7 +104,7 @@ export const CallProvider = ({ children, currentUser, }) => {
 
             // 6. Gửi offer qua socket
             socketRef.current?.emit("call-offer", {
-            conversationId,
+            conversation,
             offer,
             from: currentUser.id
             });
@@ -107,13 +114,13 @@ export const CallProvider = ({ children, currentUser, }) => {
         }
     };
 
-    const handleIncomingOffer = async (offer, conversationId) => {
+    const handleIncomingOffer = async (offer, conversation) => {
         try {
             // 1. Lấy local media
             const stream = await getFakeMediaStream();
            
             setLocalStream(stream);
-            console.log(stream)
+            setActiveCall(conversation)
             // 2. Tạo peer connection
             const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
 
@@ -122,7 +129,7 @@ export const CallProvider = ({ children, currentUser, }) => {
             pc.onicecandidate = (event) => {
             if (event.candidate) {
                 socketRef.current?.emit("ice-candidate", {
-                conversationId,
+                conversationId: conversation.conversationId,
                 candidate: event.candidate,
                 from: currentUser.id
                 });
@@ -142,7 +149,7 @@ export const CallProvider = ({ children, currentUser, }) => {
 
             // 7. Gửi answer về cho người gọi
             socketRef.current?.emit("call-answer", {
-                conversationId,
+                conversationId: conversation.conversationId,
                 answer,
                 from: currentUser.id
             });
@@ -171,11 +178,30 @@ export const CallProvider = ({ children, currentUser, }) => {
         }
     };
 
+    const handleEndCall = async (conversationId) =>{
+      console.log(123123)
+      // 1. Dừng tất cả track local
+      localStream?.getTracks().forEach(track => track.stop());
+
+      // 2. Đóng peer connection
+      pcRef.current?.close();
+      pcRef.current = null;
+
+      // 3. Xóa state liên quan
+      setLocalStream(null);
+      setRemoteStreams([]);
+      setIsCalling(false);
+      setActiveCall(null);
+      setIncomingCall(null);
+      setOutgoingCall(null);
+
+    }
+
 
   // Start call (voice/video)
   const startCall = async (type = "video", conversation) => {
     setOutgoingCall({ type, conversation });
-    // gửi request gọi đi
+    setActiveCall(conversation);
     socketRef.current?.emit("callRequest", {
       conversation,
       from: currentUser.id,
@@ -190,10 +216,9 @@ export const CallProvider = ({ children, currentUser, }) => {
     try {
 
         socketRef.current?.emit("call-accepted", {
-            conversationId: incomingCall.conversation.conversationId,
+            conversation: incomingCall.conversation,
             from: currentUser.id
         });
-
         setIncomingCall(null);
     } catch (err) {
       console.error("Không thể truy cập webcam/microphone:", err);
@@ -214,6 +239,28 @@ export const CallProvider = ({ children, currentUser, }) => {
         });
     };
 
+      const endCall = () => {
+          socketRef.current?.emit("call-ended", {
+            conversationId: activeCall?.conversationId,
+            from: currentUser.id
+          });
+        // 1. Dừng tất cả track local
+        localStream?.getTracks().forEach(track => track.stop());
+
+        // 2. Đóng peer connection
+        pcRef.current?.close();
+        pcRef.current = null;
+
+        // 3. Xóa state
+        setLocalStream(null);
+        setRemoteStreams([]);
+        setIsCalling(false);
+        setActiveCall(null);
+
+        // 4. Quay về trang trước hoặc trang mong muốn
+        navigate(-1); // quay lại trang trước
+      };
+
   return (
     <CallContext.Provider
       value={{
@@ -226,7 +273,9 @@ export const CallProvider = ({ children, currentUser, }) => {
         isCalling,
         incomingCall,
         outgoingCall,
+        activeCall,
         pcRef,
+        
       }}
     >
       {children}
@@ -248,6 +297,17 @@ export const CallProvider = ({ children, currentUser, }) => {
           onCancel={cancelCall}
         />
       )}
+      {isCalling && (
+        <>
+        <CallScreen
+          localStream={localStream}
+          remoteStreams={remoteStreams}
+          isGroup={activeCall.isGroup}
+          onEndCall={endCall}
+        />
+        </>
+      )}
+
     </CallContext.Provider>
   );
 };

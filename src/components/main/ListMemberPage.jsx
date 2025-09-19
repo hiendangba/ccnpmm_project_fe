@@ -19,13 +19,11 @@ export default function ListMemberPage() {
   const fetchStudents = async (page = currentPage, search = '') => {
     try {
       setIsSearching(true);
-      console.log(search)
       const res = await userApi.all({
         page: page,
         limit: rowsPerPage,
         search: search
       });
-      console.log(res)
       setStudents(res.users); // giả sử API trả về mảng sinh viên
       setTotal(res.total);
 

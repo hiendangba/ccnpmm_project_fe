@@ -34,6 +34,7 @@ export default function ChatWindow({ selectedConversation }) {
     localStream,
     remoteStreams,
     isCalling,
+    activeCall
   } = useCallProvider();
 
   const { messages, messagesEndRef, containerRef, messageRefs, fetchMessages, sendMessage } =
@@ -117,33 +118,6 @@ export default function ChatWindow({ selectedConversation }) {
           />
         </div>
       </div>
-      {/* Modals */}
-      {incomingCall && (
-        <IncomingCallModal
-          fromUserId={incomingCall.from}
-          selectedConversation={incomingCall.conversation}
-          currentUser={currentUser}
-          onAccept={acceptCall}
-          onDecline={declineCall}
-        />
-      )}
-
-      {outgoingCall && (
-        
-        <OutgoingCallModal
-          conversation={outgoingCall.conversation}
-          currentUser={currentUser}
-          onCancel={() => cancelCall()}
-        />
-      )}
-
-      {isCalling && (
-        <CallScreen
-          localStream={localStream}
-          remoteStreams={remoteStreams}
-          isGroup={selectedConversation.isGroup}
-        />
-      )}
 
       {/* Messages */}
       <div ref={containerRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
