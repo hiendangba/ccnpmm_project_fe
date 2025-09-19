@@ -13,21 +13,26 @@ import ChatPage from './components/main/ChatPage';
 import FriendPage from './components/main/FriendPage';
 import { AuthProvider, useAuth } from './contexts/AuthProvider';
 import { CallProvider } from './contexts/CallProvider';
+import { FriendProvider } from './contexts/FriendContext';
 import ProtectedRoute from './routes/ProtectedRoute';
+import ChangePasswordPage from './components/auth/ChangePasswordPage';
 
 function AppWrapper({ socket }) {
   const { currentUser } = useAuth();
 
   return (
     <CallProvider currentUser={currentUser}>
-      <Routes>
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/list-member" element={<ListMemberPage />} />
-        <Route path="/personal-page" element={<UserPage socket={socket} />} />
-        <Route path="/friend" element={<FriendPage />} />
-        <Route path="/chat" element={<ChatPage />} />
-      </Routes>
+      <FriendProvider>
+        <Routes>
+          <Route path="/home" element={<HomePage socket={socket}/>} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/list-member" element={<ListMemberPage />} />
+          <Route path="/personal-page" element={<UserPage socket={socket} />} />
+            <Route path="/friend" element={<FriendPage />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/change-password" element={<ChangePasswordPage />} />
+        </Routes>
+      </FriendProvider>
     </CallProvider>
   );
 }
@@ -43,7 +48,7 @@ function App({ socket }) {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/verify-otpFP" element={<VerifyOTPFPPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          
           {/* Protected routes */}
           <Route
             path="/*"

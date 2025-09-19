@@ -1,9 +1,7 @@
-import React, { useEffect, useRef } from "react";
-
-export default function CallScreen({ localStream, remoteStreams, isGroup = false }) {
+import { useRef, useEffect } from "react";
+export default function CallScreen({ localStream, remoteStreams, isGroup = false, onEndCall }) {
   const localVideoRef = useRef(null);
 
-  // Gán local stream
   useEffect(() => {
     if (localVideoRef.current && localStream) {
       localVideoRef.current.srcObject = localStream;
@@ -12,9 +10,7 @@ export default function CallScreen({ localStream, remoteStreams, isGroup = false
 
   return (
     <div className="fixed inset-0 bg-black flex justify-center items-center z-50">
-      {/* Remote streams */}
       {isGroup ? (
-        // Grid cho nhóm
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 w-full h-full p-2">
           {remoteStreams.map((stream, index) => (
             <video
@@ -27,7 +23,6 @@ export default function CallScreen({ localStream, remoteStreams, isGroup = false
           ))}
         </div>
       ) : (
-        // 1-1: full màn hình remote
         remoteStreams[0] && (
           <video
             autoPlay
@@ -38,7 +33,6 @@ export default function CallScreen({ localStream, remoteStreams, isGroup = false
         )
       )}
 
-      {/* Local video overlay góc dưới */}
       {localStream && (
         <video
           ref={localVideoRef}
@@ -48,6 +42,14 @@ export default function CallScreen({ localStream, remoteStreams, isGroup = false
           className="w-48 h-36 rounded-lg absolute bottom-4 right-4 border-2 border-white object-cover"
         />
       )}
+
+      {/* Nút kết thúc */}
+      <button
+        onClick={onEndCall}
+        className="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+      >
+        End Call
+      </button>
     </div>
   );
 }

@@ -15,8 +15,6 @@ import { useAuth } from "../../contexts/AuthProvider";
 export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, address, gd }) {
   const { currentUser } = useAuth();
   const formatDate = (date) => date ? new Date(date).toISOString().split("T")[0] : "";
-
-  console.log(currentUser)
   const navigate = useNavigate();
   const location = useLocation();
   const user = location.state?.user || currentUser;
