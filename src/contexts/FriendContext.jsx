@@ -22,7 +22,6 @@ export function FriendProvider({ children }) {
     }
 
     try {
-      console.log(search)
       const res = await userApi.searchUser({
         search: search
       });
@@ -115,13 +114,13 @@ export function FriendProvider({ children }) {
       onEvent("rejectedFriend", (data) => {
         if (currentUser.id !== data.userId) {
           setUsers((prev) => prev.filter(u => u.id !== data.id));
-          setSearchResults((prev) =>
-            prev.map(u =>
+          setSearchResults((prev) => {
+            return prev.map(u =>
               u.id === data.id
-                ? { ...u, type: "stranger", status: "stranger" }
+                ? { ...u,id:data.userId, message: "", type: "stranger", status: "stranger" }
                 : u
-            )
-          );        
+            );
+          });       
         }
       }),
 
@@ -142,24 +141,34 @@ export function FriendProvider({ children }) {
         if (currentUser.id !== data.userId) {
           setUsers((prev) => prev.filter(u => u.id !== data.id));
           setSearchResults((prev) =>
-            prev.map(u =>
-              u.id === data.id
-                ? { ...u, type: "stranger", status: "stranger" }
-                : u
-            )
+            prev.map(u => {
+              if (u.id === data.id) {
+                const { message, ...rest } = u; // bỏ field message ra
+                return { ...rest, type: "stranger", status: "stranger" };
+              }
+              return u;
+            })
           );
         }
       }),
 
       onEvent("sendRequest", (data) => {
-        console.log(data)
         if (currentUser.id !== data.userId) {
           const newUser = { ...data, type: "received", status: "pending" };
           setUsers((prev) => [...prev, newUser]);
+          setSearchResults((prev) =>
+            prev.map(u => {
+              const uid = u.userId ?? u.id;
+
+              const updatedUser =
+                uid === newUser.userId
+                  ? { ...u, id: newUser.userId, message: newUser.message, type: "received", status: "pending" }
+                  : u;
+              return updatedUser;
+            })
+          );
         }
       });
-
-
     return () => {
       socketRef.current = null;
     };
@@ -169,7 +178,6 @@ export function FriendProvider({ children }) {
   const sendRequest = async (id, message, context = "users") => {
     try {
       const res = await friendApi.sendRequest({ receiverId: id, message });
-
       if (res.success) {
         const newType = res.data.status === "accepted" ? "friend" : "sent";
         if (newType === "friend") {
