@@ -47,16 +47,26 @@ export default function FriendPage() {
 
   const handleAction = async (action, user, context = "users") => {
     let res;
+    let requestId;
+
     setIsUpdating(true); // bắt đầu thao tác
     try {
       switch(action) {
         case "accept":
-          res = await acceptFriend(user.userId, context);
+          if(context === "search")
+            requestId = user.id
+          else
+            requestId = user.userId;
+          res = await acceptFriend(requestId, context);
           if(res.success) showToast("success", `Đã chấp nhận ${user.name}`);
           else showToast("error", res.message || "Lỗi đồng ý kết bạn");
           break;
         case "reject":
-          res = await rejectFriend(user.userId, context);
+          if(context === "search")
+            requestId = user.id
+          else
+            requestId = user.userId;
+          res = await rejectFriend(requestId, context);
           if(res.success) showToast("info", `Đã từ chối ${user.name}`);
           else showToast("error", res.message || "Lỗi từ chối kết bạn");
           break;
@@ -74,7 +84,9 @@ export default function FriendPage() {
           setSelectedUser(user);
           break;
         case "send":
-          res = await sendRequest(user.id,message,context)
+          const userId = user.userId ?? user.id;
+          console.log("userId",userId)
+          res = await sendRequest(userId,message,context)
           if(res.success) showToast("info", `Đã gửi kết bạn với ${user.name}`);
           else showToast("error", res.message || "Lỗi gửi lời mời kết bạn");
 
