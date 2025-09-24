@@ -4,6 +4,7 @@ import Picture from "../common/Picture";
 import AltAvatar from "../../assets/alt_avatar.png";
 import { Image as ImageIcon, Send, ThumbsUp, MessageCircle, Share2, X, UserPlus, FolderMinus } from "lucide-react";
 import userApi from "../../api/userApi";
+import PostComposer from "./post/PostComposer";
 
 const CommentItem = ({ comment, onOpenViewer, depth = 0, activeReplyId, setActiveReplyId, CommentSubmit }) => {
     const isNested = depth > 0;
@@ -416,7 +417,7 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
         setSelectedImages((prev) => [...prev, ...files]);
     };
 
-    const handlePost = async () => {
+    const handlePost = async (content, selectedImages) => {
         if (!content.trim() && selectedImages.length === 0) return;
         const formData = new FormData();
         formData.append("content", content);
@@ -427,10 +428,10 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
             const result = await userApi.postNew(formData);
             const savedPost = result.post;
             console.log(savedPost);
-            if (savedPost && savedPost.id) {
-                setPosts((prev) => [savedPost, ...prev]);
-                setContent("");
-                setSelectedImages([]);
+            if (savedPost) {
+                setPosts((prev) => {
+                    return [savedPost, ...prev];
+                });
                 setToast({ message: result.message, type: "success" });
             }
         } catch (err) {
@@ -600,49 +601,8 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
 
     return (
         <div className="flex flex-col w-2/3 gap-4">
-            {/* Composer */}
-            <div className="bg-white p-4 rounded-lg shadow-sm border">
-                <div className="flex gap-3">
-                    <Picture src={user.avatarUrl ?? AltAvatar} size="sm" variant="circle" className="w-10 h-10" />
-                    <textarea
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        placeholder="Bạn đang nghĩ gì?"
-                        className="flex-1 p-3 bg-gray-100 rounded-xl resize-none focus:outline-none focus:bg-gray-50"
-                        rows={3}
-                    />
-                </div>
-                {selectedImages.length > 0 && (
-                    <div className="mt-3 grid grid-cols-2 gap-2">
-                        {selectedImages.slice(0, 4).map((file, idx) => (
-                            <div key={idx} className="relative overflow-hidden rounded-lg border cursor-pointer" onClick={() => onOpenViewer(selectedImages.map(f => URL.createObjectURL(f)), idx)}>
-                                {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                                <img src={URL.createObjectURL(file)} className="w-full h-36 object-cover" />
-                                {idx === 3 && selectedImages.length > 4 && (
-                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                        <span className="text-white text-xl font-semibold">+{selectedImages.length - 4}</span>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                )}
-                <div className="flex items-center justify-end gap-2 mt-3">
-                    <input ref={fileInputRef} type="file" multiple accept="image/*" className="hidden" onChange={handleFilesChange} />
-                    <Button variant="outline" className="px-3" onClick={handleOpenPicker}>
-                        <span className="inline-flex items-center gap-2">
-                            <ImageIcon className="w-4 h-4" />
-                            <span>Ảnh/Video</span>
-                        </span>
-                    </Button>
-                    <Button onClick={handlePost} className="px-4">
-                        <span className="inline-flex items-center gap-2">
-                            <Send className="w-4 h-4" />
-                            <span>Đăng</span>
-                        </span>
-                    </Button>
-                </div>
-            </div>
+
+            <PostComposer user={user} onPost={handlePost} onOpenViewer={onOpenViewer} />
 
             {posts.map((post) => (
                 <div key={post.id} className="bg-white p-4 rounded-lg shadow-sm border">
