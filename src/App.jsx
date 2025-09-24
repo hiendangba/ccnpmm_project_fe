@@ -4,7 +4,6 @@ import LoginPage from './components/auth/LoginPage';
 import RegisterPage from './components/auth/RegisterPage';
 import ForgotPasswordPage from './components/auth/ForgotPasswordPage';
 import VerifyOTPFPPage from './components/auth/VerifyOtpFP';
-import ResetPasswordPage from './components/auth/ChangePasswordPage';
 import ProfilePage from './components/main/ProfilePage';
 import ListMemberPage from './components/main/ListMemberPage';
 import HomePage from './components/main/HomePage';

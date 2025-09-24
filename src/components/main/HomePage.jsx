@@ -71,7 +71,7 @@ export default function HomePage({ children, avatar, name, socket }) {
             Zalo UTE
           </h2>
           <ul className="space-y-6 text-[24px] text-black">
-            <li className="cursor-pointer hover:text-blue-500 hover:translate-x-[-8px] transition-transform duration-200" onClick={() => navigate("/")}>
+            <li className="cursor-pointer hover:text-blue-500 hover:translate-x-[-8px] transition-transform duration-200" onClick={() => navigate("/home")}>
               Trang chủ
             </li>
             <li className="cursor-pointer hover:text-blue-500 hover:translate-x-[-8px] transition-transform duration-200" onClick={() => navigate("/personal-page")}>
