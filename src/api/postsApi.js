@@ -6,7 +6,14 @@ const postsApi = {
     },
     likePost (data) {
         return axiosClient.post("/post/likePost", data)
-    } 
+    },
+    commentPost (data) {
+        return axiosClient.post("/post/commentPost", data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
+    }
 }
 
 export default postsApi;
