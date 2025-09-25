@@ -12,7 +12,7 @@ import ImageViewer from "./ImageViewer";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function UserPage( {socket} ) {
+export default function UserPage({ socket }) {
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem("user"));
     // Lấy từ localStorage nếu có, nếu không có thì chuyển sang trang đăng nhập

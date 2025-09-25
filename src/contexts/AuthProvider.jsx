@@ -20,29 +20,29 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.removeItem("token");
   }, []);
 
-    useEffect(() => {
+  useEffect(() => {
     if (token && !currentUser) {
-        const savedUser = localStorage.getItem("user");
+      const savedUser = localStorage.getItem("user");
 
-        if (savedUser) {
+      if (savedUser) {
         setCurrentUser(JSON.parse(savedUser));
         setLoading(false);
-        } else {
+      } else {
         userApi
-            .getProfile()
-            .then((user) => {
+          .getProfile()
+          .then((user) => {
             setCurrentUser(user);
             localStorage.setItem("user", JSON.stringify(user));
-            })
-            .catch(() => {
+          })
+          .catch(() => {
             logout();
-            })
-            .finally(() => setLoading(false));
-        }
+          })
+          .finally(() => setLoading(false));
+      }
     } else {
-        setLoading(false); // nếu không có token thì cũng load xong
+      setLoading(false); // nếu không có token thì cũng load xong
     }
-    }, [token, currentUser, logout]);
+  }, [token, currentUser, logout]);
 
   // Hàm login
   const login = async ({ mssv, password, remember }) => {
@@ -70,9 +70,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-<AuthContext.Provider value={{ currentUser, token, login, logout, loading }}>
-  {children}
-</AuthContext.Provider>
+    <AuthContext.Provider value={{ currentUser, token, login, logout, loading }}>
+      {children}
+    </AuthContext.Provider>
   );
 };
 
