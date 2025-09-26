@@ -8,26 +8,27 @@ export default function InputField({
   required = true,
   readOnly = false, 
   ...props
-
 }) {
   const baseStyle =
     `transition-all duration-200`;
 
   const variants = {
-    rounded: 
-      `px-10 py-2
+    rounded: `
+      px-4 py-2
       bg-white/50
-      rounded-4xl 
+      rounded-4xl
       outline-none
-      text-black text-[24px] 
+      text-black text-base
       shadow-md  
-      border-3 border-transparent
-      focus:border-blue-500 focus:shadow-lg`,
-    ghost:
-      `flex-1 p-10 bg-gray-100 
-      rounded-xl 
+      border border-transparent
+      focus:border-blue-500 focus:shadow-md
+    `,
+    ghost: `
+      flex-1 px-4 py-2 bg-gray-100 
+      rounded-md
       resize-none 
-      focus:outline-none focus:bg-gray-50`
+      focus:outline-none focus:bg-gray-50
+    `
   };
 
   return (
@@ -37,10 +38,9 @@ export default function InputField({
       value={value}
       onChange={onChange}
       required={required}
-      readOnly={readOnly}  
+      readOnly={readOnly}
       className={`${baseStyle} ${variants[variant]} ${className}`}
       {...props}
-
     />
   );
 }

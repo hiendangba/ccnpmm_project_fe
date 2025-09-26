@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useState } from "react";
 import userApi from "../../api/userApi";
 import PostComposer from "./post/PostComposer";
 import CommentModel from "./post/CommentModal";
 import LikeModal from "./post/LikeModal";
 import PostItem from "./post/PostItem";
+import Toast from "../common/Toast"; // thêm import Toast
 
 import usePostsFeed from "../../hooks/usePostsFeed";
 import useSocketFeed from "../../hooks/useSocketFeed";
@@ -21,7 +22,7 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
     const [activeReplyId, setActiveReplyId] = useState(null);
 
     // ----- dùng hook quản lý posts -----
-    const { posts, setPosts, isLoading, hasMore, fetchNext, sentinelRef } = usePostsFeed({
+    const { posts, setPosts, isLoading, hasMore, sentinelRef } = usePostsFeed({
         postsApi,
         user,
         isPersonal,
@@ -29,7 +30,7 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
     });
 
     // ----- dùng hook socket -----
-    const { commentPostRef, addCommentToTree } = useSocketFeed({
+    const { addCommentToTree } = useSocketFeed({
         socket,
         user,
         isPersonal,
@@ -37,7 +38,6 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
         commentPost,
         setCommentPost,
     });
-
 
     const handlePost = async (content, selectedImages) => {
         if (!content.trim() && selectedImages.length === 0) return;
@@ -49,15 +49,15 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
         try {
             const result = await userApi.postNew(formData);
             const savedPost = result.post;
-            console.log(savedPost);
             if (savedPost) {
-                setPosts((prev) => {
-                    return [savedPost, ...prev];
-                });
+                setPosts((prev) => [savedPost, ...prev]);
                 setToast({ message: result.message, type: "success" });
             }
         } catch (err) {
-            const message = err.response?.data?.message || err.message || "Thất bại khi kết nối với máy chủ.";
+            const message =
+                err.response?.data?.message ||
+                err.message ||
+                "Thất bại khi kết nối với máy chủ.";
             setToast({ message, type: "error" });
         }
     };
@@ -67,14 +67,14 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
             await postsApi.likePost({ postId });
             setPosts((prev) =>
                 prev.map((p) =>
-                    p.id === postId ? {
-                        ...p,
-                        liked: !p.liked,
-                    } : p
+                    p.id === postId ? { ...p, liked: !p.liked } : p
                 )
             );
         } catch (err) {
-            const message = err.response?.data?.message || err.message || "Thất bại khi kết nối với máy chủ.";
+            const message =
+                err.response?.data?.message ||
+                err.message ||
+                "Thất bại khi kết nối với máy chủ.";
             setToast({ message, type: "error" });
         }
     };
@@ -95,11 +95,11 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
 
         // Auto scroll xuống form bình luận khi mở modal
         setTimeout(() => {
-            const commentForm = document.querySelector('.comment-form-container');
+            const commentForm = document.querySelector(".comment-form-container");
             if (commentForm) {
                 commentForm.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'end'
+                    behavior: "smooth",
+                    block: "end",
                 });
             }
         }, 300);
@@ -129,33 +129,33 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
 
                 // Update lại post bên ngoài
                 setPosts((prev) =>
-                    prev.map((p) => {
-                        if (p.id === savedComment.postId) {
-                            return {
-                                ...p,
-                                commentCount: p.commentCount + 1,
-                                commentUsers: addCommentToTree(
-                                    p.commentUsers ?? [],
-                                    savedComment
-                                ),
-                            };
-                        }
-                        return p;
-                    })
+                    prev.map((p) =>
+                        p.id === savedComment.postId
+                            ? {
+                                  ...p,
+                                  commentCount: p.commentCount + 1,
+                                  commentUsers: addCommentToTree(
+                                      p.commentUsers ?? [],
+                                      savedComment
+                                  ),
+                              }
+                            : p
+                    )
                 );
 
-                // Update model đang mở 
-                setCommentPost((prev) => {
-                    if (!prev) return prev;
-                    return {
-                        ...prev,
-                        commentCount: prev.commentCount + 1,
-                        commentUsers: addCommentToTree(
-                            prev.commentUsers ?? [],
-                            savedComment
-                        ),
-                    };
-                });
+                // Update model đang mở
+                setCommentPost((prev) =>
+                    prev
+                        ? {
+                              ...prev,
+                              commentCount: prev.commentCount + 1,
+                              commentUsers: addCommentToTree(
+                                  prev.commentUsers ?? [],
+                                  savedComment
+                              ),
+                          }
+                        : prev
+                );
 
                 setToast({
                     message: result.message || "Bình luận thành công",
@@ -176,8 +176,7 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
     };
 
     return (
-        <div className="flex flex-col w-2/3 gap-4">
-
+        <div className="flex flex-col w-full max-w-xl mx-auto gap-4 relative">
             <PostComposer user={user} onPost={handlePost} onOpenViewer={onOpenViewer} />
 
             {posts.map((post) => (
@@ -196,10 +195,16 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
                 <div className="text-center text-sm text-gray-500 py-3">Đang tải...</div>
             )}
             {!hasMore && posts.length > 0 && (
-                <div className="text-center text-sm text-gray-400 py-3">Đã hiển thị tất cả bài viết</div>
+                <div className="text-center text-sm text-gray-400 py-3">
+                    Đã hiển thị tất cả bài viết
+                </div>
             )}
 
-            <LikeModal showLikeModal={showLikeModal} selectedPost={selectedPost} handleCloseLikeModal={handleCloseLikeModal} />
+            <LikeModal
+                showLikeModal={showLikeModal}
+                selectedPost={selectedPost}
+                handleCloseLikeModal={handleCloseLikeModal}
+            />
 
             <CommentModel
                 showCommentModal={showCommentModal}
@@ -213,8 +218,14 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
                 user={user}
             />
 
+            {toast && (
+                <Toast
+                    key={toast.message + toast.type}
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
         </div>
     );
 }
-
-

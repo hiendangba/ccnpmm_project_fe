@@ -6,11 +6,11 @@ import TextWithLink from '../common/TextWithLink';
 import { useState } from 'react';
 import Toast from "../common/Toast";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthProvider";  // hook lấy login, currentUser từ AuthProvider
+import { useAuth } from "../../contexts/AuthProvider";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();   // lấy hàm login toàn cục từ AuthProvider
+  const { login } = useAuth();
 
   const [remember, setRemember] = useState(false);
   const [mssv, setMssv] = useState('');
@@ -23,8 +23,7 @@ export default function LoginPage() {
 
   const handleLoginClick = async () => {
     try {
-      const user = await login({ mssv, password, remember }); // gọi login toàn cục
-      // Sau khi login thành công, điều hướng theo thông tin user
+      const user = await login({ mssv, password, remember });
       if (!user.age && !user.gender && !user.bio && !user.address) {
         navigate("/profile", { state: { user } });
       } else {
@@ -42,7 +41,7 @@ export default function LoginPage() {
         <InputField
           placeholder="Nhập MSSV"
           required
-          className="w-[482px]"
+          className="w-full max-w-md"
           value={mssv}
           onChange={(e) => setMssv(e.target.value)}
         />
@@ -50,16 +49,16 @@ export default function LoginPage() {
           type="password"
           placeholder="Nhập mật khẩu"
           required
-          className="w-[482px]"
+          className="w-full max-w-md"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
         <Button
           text="Đăng nhập"
-          className="w-[482px]"
+          className="w-full max-w-md"
           onClick={handleLoginClick}
         />
-        <div className="flex items-center justify-between w-[482px]">
+        <div className="flex items-center justify-between w-full max-w-md">
           <CheckboxField text="Nhớ mật khẩu" onChange={handleRememberChange} />
           <TextWithLink linkText="Quên mật khẩu" to="/forgot-password" />
         </div>
@@ -72,7 +71,7 @@ export default function LoginPage() {
 
       {toast && (
         <Toast
-          key={Date.now()}   
+          key={toast.message + toast.type}
           message={toast.message}
           type={toast.type}
           onClose={() => setToast(null)}

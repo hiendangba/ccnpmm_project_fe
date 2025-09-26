@@ -1,27 +1,27 @@
 export default function SelectField({
-    fieldName,
-    value,
-    onChange,
-    options = [],
-    variant = "rounded",
-    className = "",
-    required = false,
-    disabled,
+  fieldName,
+  value,
+  onChange,
+  options = [],
+  variant = "rounded",
+  className = "",
+  required = false,
+  disabled,
 }) {
   const baseStyle = `
-    px-10 py-2 
+    px-4 py-2 
     transition-all duration-200
-    focus:border-blue-500 focus:shadow-lg
+    focus:border-blue-500 focus:shadow-md
   `;
 
   const variants = {
     rounded: `
       bg-white/50
-      rounded-4xl
+      rounded-xl
       outline-none
-      text-black text-[24px]
+      text-black text-base
       shadow-md
-      border-3 border-transparent
+      border border-transparent
     `,
   };
 

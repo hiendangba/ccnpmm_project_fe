@@ -12,34 +12,34 @@ export default function Button({
     transition-all duration-200
     hover:border-blue-500 hover:shadow-lg`;
 
-const variants = {
-  rounded: `
-    bg-white 
-    rounded-4xl
-    text-black text-[24px]
-    shadow-md
-    border-3 border-transparent 
-    hover:border-blue-500 hover:shadow-lg
-    px-4
+  const variants = {
+    rounded: `
+      bg-white 
+      rounded-4xl
+      text-black text-base
+      shadow-md
+      border border-transparent 
+      hover:border-blue-500 hover:shadow-lg
+      px-3
     `,
     hamburger: `
       bg-white 
       rounded-full
-      text-black text-[24px] font-bold
+      text-black text-base font-bold
       shadow-md
-      border-3 border-transparent
+      border border-transparent
       hover:border-blue-500 hover:shadow-lg
+      px-3 py-2
     `,
     outline: `
       bg-white
       rounded-4xl
-      text-black text-[24px]
-      border-2 border-gray-300
+      text-black text-base
+      border border-gray-300
       hover:border-blue-500 hover:bg-gray-50
-      px-4
+      px-3
     `,
-};
-
+  };
 
   return (
     <button

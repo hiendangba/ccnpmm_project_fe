@@ -13,17 +13,17 @@ export default function Picture({
   `;
 
   const variants = {
-    circle: "rounded-full border-2 border-transparent hover:border-blue-500",
-    rounded: "rounded-2xl border-2 border-transparent hover:border-blue-500",
-    square: "rounded-none border-2 border-transparent hover:border-blue-500",
+    circle: "rounded-full border border-transparent hover:border-blue-500",
+    rounded: "rounded-xl border border-transparent hover:border-blue-500",
+    square: "rounded-none border border-transparent hover:border-blue-500",
   };
 
   return (
     <img
-      src={src || alt} 
+      src={src || alt}
       alt={alt}
       onClick={onClick}
-      className={`${baseStyle} ${variants[variant]} ${className}`}
+      className={`w-20 h-20 ${baseStyle} ${variants[variant]} ${className}`}
     />
   );
 }
