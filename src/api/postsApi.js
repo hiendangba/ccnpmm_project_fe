@@ -13,6 +13,9 @@ const postsApi = {
                 "Content-Type": "multipart/form-data"
             }
         });
+    },
+    sharePost (data) {
+        return axiosClient.post("/post/sharePost", data)
     }
 }
 

@@ -2,7 +2,7 @@ import { ThumbsUp, MessageCircle, Share2 } from "lucide-react";
 import Picture from "../../common/Picture";
 import AltAvatar from "../../../assets/alt_avatar.png";
 
-export default function PostItem({ post, onOpenViewer, handleToggleLike, handleOpenLikeModal, handleOpenCommentModal }) {
+export default function PostItem({ post, onOpenViewer, handleToggleLike, handleOpenLikeModal, handleOpenCommentModal, handleOpenShareModal }) {
     return (
         <div key={post.id} className="bg-white p-4 rounded-lg shadow-sm border">
             {/* Header */}
@@ -16,6 +16,53 @@ export default function PostItem({ post, onOpenViewer, handleToggleLike, handleO
 
             {/* Content */}
             <p className="text-[15px] leading-relaxed">{post.content}</p>
+
+            {/* Nếu đây là bài share thì render thêm khung rootPost */}
+            {post.rootPost && (
+                <div className="mt-3 border rounded-lg bg-gray-50 p-3">
+                    {/* Header root post */}
+                    <div className="flex items-center gap-3 mb-2">
+                        <Picture
+                            src={post.rootPost.user.avatarUrl ?? AltAvatar}
+                            size="sm"
+                            variant="circle"
+                            className="w-8 h-8"
+                        />
+                        <div>
+                            <p className="font-semibold text-sm">{post.rootPost.user.name}</p>
+                            <p className="text-gray-400 text-xs">
+                                {new Date(post.rootPost.createdAt).toLocaleString()}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Content root post */}
+                    <p className="text-[14px] text-gray-700">{post.rootPost.content}</p>
+
+                    {/* Images root post */}
+                    {post.rootPost.images && post.rootPost.images.length > 0 && (
+                        <div className="mt-2 grid grid-cols-2 gap-2">
+                            {post.rootPost.images.slice(0, 2).map((src, idx) => (
+                                <div
+                                    key={idx}
+                                    className="relative overflow-hidden rounded-lg border cursor-pointer"
+                                    onClick={() => onOpenViewer(post.rootPost.images, idx)}
+                                >
+                                    {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                                    <img src={src} className="w-full h-40 object-cover" />
+                                    {idx === 1 && post.rootPost.images.length > 2 && (
+                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                            <span className="text-white text-sm font-semibold">
+                                                +{post.rootPost.images.length - 2}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Images */}
             {post.images && post.images.length > 0 && (
@@ -38,7 +85,7 @@ export default function PostItem({ post, onOpenViewer, handleToggleLike, handleO
             <div className="mt-3 pt-3 flex items-center justify-between text-sm text-gray-600">
                 <div className="flex items-center gap-4">
                     {post.likeCount > 0 && (
-                        <span className="inline-flex items-center gap-1 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleOpenLikeModal(post)}>
+                        <span className="inline-flex items-center gap-1 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleOpenLikeModal(post, "like")}>
                             <ThumbsUp className="w-4 h-4 fill-blue-600 text-blue-600" />
                             <span>{post.likeCount}</span>
                         </span>
@@ -48,7 +95,7 @@ export default function PostItem({ post, onOpenViewer, handleToggleLike, handleO
                     )}
                 </div>
                 {post.shareCount > 0 && (
-                    <span>{post.shareCount} lượt chia sẻ</span>
+                    <span onClick={() => handleOpenLikeModal(post, "share")} >{post.shareCount} lượt chia sẻ</span>
                 )}
             </div>
 
@@ -70,7 +117,7 @@ export default function PostItem({ post, onOpenViewer, handleToggleLike, handleO
                         <span>Bình luận</span>
                     </span>
                 </button>
-                <button className="py-2 rounded hover:bg-gray-100">
+                <button className="py-2 rounded hover:bg-gray-100" onClick={() => handleOpenShareModal(post)}>
                     <span className="inline-flex items-center gap-2 justify-center">
                         <Share2 className="w-4 h-4" />
                         <span>Chia sẻ</span>
