@@ -97,7 +97,7 @@ const CommentItem = ({ comment, onOpenViewer, depth = 0, activeReplyId, setActiv
                         </p>
                         <button
                             onClick={handleReplyClick}
-                            className="text-xs text-blue-500 hover:underline"
+                            className="text-xs text-blue-500 hover:underline cursor-pointer"
                         >
                             Trả lời
                         </button>

@@ -17,7 +17,7 @@ export default function SelectField({
   const variants = {
     rounded: `
       bg-white/50
-      rounded-xl
+      rounded-4xl
       outline-none
       text-black text-base
       shadow-md

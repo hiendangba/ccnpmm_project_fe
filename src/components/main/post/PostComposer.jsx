@@ -25,7 +25,7 @@ export default function PostComposer({
     };
 
     return (
-        <div className="bg-white p-4 rounded-lg shadow-sm border">
+        <div className="bg-white p-4 rounded-2xl shadow-sm">
             <div className="flex gap-3">
                 <Picture
                     src={user?.avatarUrl ?? AltAvatar}

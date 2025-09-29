@@ -4,6 +4,7 @@ import PostComposer from "./post/PostComposer";
 import CommentModel from "./post/CommentModal";
 import LikeModal from "./post/LikeModal";
 import PostItem from "./post/PostItem";
+import ShareModal from "./post/ShareModal";
 import Toast from "../common/Toast"; // thêm import Toast
 
 import usePostsFeed from "../../hooks/usePostsFeed";
@@ -20,6 +21,12 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
     const [showCommentModal, setShowCommentModal] = useState(false);
     const [commentPost, setCommentPost] = useState(null);
     const [activeReplyId, setActiveReplyId] = useState(null);
+
+    // modal Share 
+    const [showShareModal, setShowShareModal] = useState(false);
+    const [sharePost, setSharePost] = useState(null);
+
+    const [modalType, setModalType] = useState("like");
 
     // ----- dùng hook quản lý posts -----
     const { posts, setPosts, isLoading, hasMore, sentinelRef } = usePostsFeed({
@@ -79,14 +86,25 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
         }
     };
 
-    const handleOpenLikeModal = (post) => {
+    const handleOpenLikeModal = (post,type) => {
         setSelectedPost(post);
+        setModalType(type);
         setShowLikeModal(true);
     };
 
     const handleCloseLikeModal = () => {
         setShowLikeModal(false);
         setSelectedPost(null);
+    };
+
+    const handleOpenShareModal = (post) => {
+        setSharePost(post);
+        setShowShareModal(true);
+    };
+
+    const handleCloseShareModal = () => {
+        setShowShareModal(false);
+        setSharePost(null);
     };
 
     const handleOpenCommentModal = (post) => {
@@ -175,6 +193,17 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
         await CommentSubmit(commentContent, commentImages);
     };
 
+    const handleShareSubmit = async ( payload ) => {
+         try {
+            const result = await postsApi.sharePost( payload );
+            console.log(result.sharePostResponseDTO);
+        } catch (err) {
+            const message = err.response?.data?.message || err.message || "Thất bại khi kết nối với máy chủ.";
+            setToast({ message, type: "error" });
+        }
+    }
+    
+
     return (
         <div className="flex flex-col w-full max-w-xl mx-auto gap-4 relative">
             <PostComposer user={user} onPost={handlePost} onOpenViewer={onOpenViewer} />
@@ -187,6 +216,7 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
                     handleToggleLike={handleToggleLike}
                     handleOpenLikeModal={handleOpenLikeModal}
                     handleOpenCommentModal={handleOpenCommentModal}
+                    handleOpenShareModal={handleOpenShareModal}
                 />
             ))}
 
@@ -200,6 +230,7 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
                 </div>
             )}
 
+            <LikeModal show={showLikeModal} selectedPost={selectedPost} handleClose={handleCloseLikeModal} type={modalType} />
             <LikeModal
                 showLikeModal={showLikeModal}
                 selectedPost={selectedPost}
@@ -217,6 +248,8 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
                 onPost={handleCommentSubmit}
                 user={user}
             />
+
+            <ShareModal showShareModal={showShareModal} sharePost={sharePost} handleCloseShareModal={handleCloseShareModal} user={user} onShare={handleShareSubmit} />
 
             {toast && (
                 <Toast

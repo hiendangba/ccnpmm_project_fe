@@ -94,7 +94,7 @@ export default function FriendPage() {
             : showToast("error", res.message || "Lỗi gửi lời mời");
           setSelectedUser(null);
           break;
-          }
+        }
         default:
           break;
       }
@@ -188,14 +188,18 @@ export default function FriendPage() {
                     renderUserItem(u, getButtonsByType(u.type), "users")
                   )}
 
-              <h3 className="text-xl font-medium mt-4 mb-2">Lời mời kết bạn</h3>
+              <hr className="my-4 border-gray-200" />
+
+              <h3 className="text-xl font-medium mb-2">Lời mời kết bạn</h3>
               {users.filter(u => u.type === "received").length === 0
                 ? <p className="text-gray-500 text-base">Không có lời mời nào</p>
                 : users.filter(u => u.type === "received").map(u =>
                     renderUserItem(u, getButtonsByType(u.type), "users")
                   )}
 
-              <h3 className="text-xl font-medium mt-4 mb-2">Lời mời đã gửi</h3>
+              <hr className="my-4 border-gray-200" />
+
+              <h3 className="text-xl font-medium mb-2">Lời mời đã gửi</h3>
               {users.filter(u => u.type === "sent").length === 0
                 ? <p className="text-gray-500 text-base">Chưa gửi lời mời nào</p>
                 : users.filter(u => u.type === "sent").map(u =>

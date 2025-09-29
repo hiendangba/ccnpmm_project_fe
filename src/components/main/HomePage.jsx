@@ -35,7 +35,7 @@ export default function HomePage({ children, avatar, name, socket }) {
           text="☰"
           variant="hamburger"
           onClick={() => setOpen(true)}
-          className="w-12 h-12 absolute top-4 right-4 z-50 opacity-30 hover:opacity-80 transition"
+          className="w-12 h-12 fixed top-4 right-4 z-50 opacity-30 hover:opacity-80 transition"
         />
       )}
       {open && (
@@ -83,6 +83,12 @@ export default function HomePage({ children, avatar, name, socket }) {
               onClick={() => navigate("/personal-page")}
             >
               Trang cá nhân
+            </li>
+            <li
+              className="cursor-pointer hover:text-blue-500 transition-colors duration-200"
+              onClick={() => navigate("/profile")}
+            >
+              Thông tin cá nhân
             </li>
             <li
               className="cursor-pointer hover:text-blue-500 transition-colors duration-200"

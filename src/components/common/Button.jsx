@@ -10,7 +10,7 @@ export default function Button({
   const baseStyle =
     `py-2 
     transition-all duration-200
-    hover:border-blue-500 hover:shadow-lg`;
+    hover:border-blue-500 hover:cursor-pointer shadow-lg`;
 
   const variants = {
     rounded: `
@@ -35,6 +35,7 @@ export default function Button({
       bg-white
       rounded-4xl
       text-black text-base
+      shadow-md
       border border-gray-300
       hover:border-blue-500 hover:bg-gray-50
       px-3
