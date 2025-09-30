@@ -82,8 +82,8 @@ export default function PostComposer({
                     onChange={handleFilesChange}
                 />
                 <Button
-                    variant="outline"
-                    className="px-3"
+                    variant="rounded"
+                    className="border border-gray-300 hover:bg-gray-50 px-3"
                     onClick={() => handleOpenPicker(fileInputRef)}
                 >
                     <span className="inline-flex items-center gap-2">
@@ -91,7 +91,11 @@ export default function PostComposer({
                         <span>Ảnh/Video</span>
                     </span>
                 </Button>
-                <Button onClick={handleSubmit} className="px-4">
+                <Button 
+                    variant="rounded"
+                    className="border border-gray-300"
+                    onClick={handleSubmit}
+                >
                     <span className="inline-flex items-center gap-2">
                         <Send className="w-4 h-4" />
                         <span>Đăng</span>

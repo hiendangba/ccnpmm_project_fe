@@ -44,13 +44,14 @@ export default function ForgotPasswordPage() {
           type="email"
           placeholder="Nhập email"
           required
-          className="w-full max-w-md"
+          variant="rounded"
+          className="w-full max-w-md bg-white/50 border border-transparent"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <Button
           text="Gửi OTP"
-          className="w-full max-w-md"
+          className="w-full max-w-md border border-transparent"
           onClick={handleForgotPasswordClick}
         />
         <TextWithLink

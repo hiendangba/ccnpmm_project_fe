@@ -65,14 +65,16 @@ export default function RegisterPage() {
         <InputField
           placeholder="Nhập tên"
           required
-          className="w-full max-w-md"
+          variant="rounded"
+          className="w-full max-w-md bg-white/50 border border-transparent"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
         <InputField
           placeholder="Nhập MSSV"
           required
-          className="w-full max-w-md"
+          variant="rounded"
+          className="w-full max-w-md bg-white/50 border border-transparent"
           value={mssv}
           onChange={(e) => setMssv(e.target.value)}
         />
@@ -80,7 +82,8 @@ export default function RegisterPage() {
           type="password"
           placeholder="Nhập mật khẩu"
           required
-          className="w-full max-w-md"
+          variant="rounded"
+          className="w-full max-w-md bg-white/50 border border-transparent"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -88,7 +91,8 @@ export default function RegisterPage() {
           type="password"
           placeholder="Nhập lại mật khẩu"
           required
-          className="w-full max-w-md"
+          variant="rounded"
+          className="w-full max-w-md bg-white/50 border border-transparent"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
@@ -96,7 +100,8 @@ export default function RegisterPage() {
           type="email"
           placeholder="Nhập email"
           required
-          className="w-full max-w-md"
+          variant="rounded"
+          className="w-full max-w-md bg-white/50 border border-transparent"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -105,20 +110,21 @@ export default function RegisterPage() {
           <InputField
             placeholder="Nhập OTP"
             required
-            className="flex-1"
+            variant="rounded"
+            className="flex-1 bg-white/50 border border-transparent"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
           />
           <Button
             text="Gửi lại OTP"
-            className="w-40"
+            className="w-40 border border-transparent"
             onClick={handleSendOTPClick}
           />
         </div>
 
         <Button
           text="Đăng ký"
-          className="w-full max-w-md"
+          className="w-full max-w-md border border-transparent"
           onClick={handleRegisterClick}
         />
         <TextWithLink

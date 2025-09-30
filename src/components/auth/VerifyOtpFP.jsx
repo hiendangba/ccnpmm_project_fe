@@ -97,12 +97,14 @@ export default function VerifyOTPPage() {
           <InputField
             placeholder={`Nhập OTP - Bạn còn ${tryTime} lần thử`}
             required
-            className="flex-1"
+            variant="rounded"
+            className="flex-1 bg-white/50 border border-transparent"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
           />
           <Button
             text={loading ? "..." : "Gửi lại OTP"}
+            className="border border-transparent"
             onClick={handleResendClick}
             disabled={loading}
           />
@@ -110,7 +112,7 @@ export default function VerifyOTPPage() {
 
         <Button
           text={loading ? "Đang xử lý..." : "Kiểm tra OTP"}
-          className="w-full max-w-md"
+          className="w-full max-w-md border border-transparent"
           onClick={handleVerifyClick}
           disabled={loading}
         />

@@ -10,25 +10,23 @@ export default function InputField({
   ...props
 }) {
   const baseStyle =
-    `transition-all duration-200`;
+    `transition-all duration-200
+     focus:border-blue-500 focus:outline-none`;
 
   const variants = {
     rounded: `
       px-4 py-2
-      bg-white/50
       rounded-4xl
       outline-none
       text-black text-base
-      shadow-md  
-      border border-transparent
-      focus:border-blue-500 focus:shadow-md
+      shadow-md
     `,
     ghost: `
       flex-1 px-4 py-2 bg-gray-100 
       rounded-md
       resize-none 
       focus:outline-none focus:bg-gray-50
-    `
+    `,
   };
 
   return (

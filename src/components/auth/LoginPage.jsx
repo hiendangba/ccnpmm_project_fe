@@ -41,7 +41,8 @@ export default function LoginPage() {
         <InputField
           placeholder="Nhập MSSV"
           required
-          className="w-full max-w-md"
+          variant="rounded"
+          className="w-full max-w-md bg-white/50 border border-transparent"
           value={mssv}
           onChange={(e) => setMssv(e.target.value)}
         />
@@ -49,13 +50,14 @@ export default function LoginPage() {
           type="password"
           placeholder="Nhập mật khẩu"
           required
-          className="w-full max-w-md"
+          variant="rounded"
+          className="w-full max-w-md bg-white/50 border border-transparent"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
         <Button
           text="Đăng nhập"
-          className="w-full max-w-md"
+          className="w-full max-w-md border border-transparent"
           onClick={handleLoginClick}
         />
         <div className="flex items-center justify-between w-full max-w-md">

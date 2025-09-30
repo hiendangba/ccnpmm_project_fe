@@ -10,6 +10,7 @@ import HomePage from './components/main/HomePage';
 import UserPage from './components/main/UserPage';
 import ChatPage from './components/main/ChatPage';
 import FriendPage from './components/main/FriendPage';
+import UserManagement from './components/management/UserManagement';
 import { AuthProvider, useAuth } from './contexts/AuthProvider';
 import { CallProvider } from './contexts/CallProvider';
 import { FriendProvider } from './contexts/FriendContext';
@@ -61,6 +62,18 @@ function AppRoutes({ socket }) {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/verify-otpFP" element={<VerifyOTPFPPage />} />
+
+      {/* Admin routes */}
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute requireRole="admin">
+            <HomePage socket={socket}>
+              <UserManagement />
+            </HomePage>
+          </ProtectedRoute>
+        }
+      />
 
       {/* Protected routes */}
       <Route

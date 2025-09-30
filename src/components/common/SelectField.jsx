@@ -16,12 +16,11 @@ export default function SelectField({
 
   const variants = {
     rounded: `
-      bg-white/50
+      px-4 py-2
       rounded-4xl
       outline-none
       text-black text-base
       shadow-md
-      border border-transparent
     `,
   };
 
@@ -34,7 +33,7 @@ export default function SelectField({
         disabled={disabled}
         className={`${baseStyle} ${variants[variant]} ${className}`}
       >
-        <option value="" disabled>-- {fieldName} --</option>
+        {fieldName && <option value="" disabled>-- {fieldName} --</option>}
         {options.map((opt, idx) => (
           <option key={idx} value={opt.value}>
             {opt.label}

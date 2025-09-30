@@ -48,7 +48,7 @@ export default function LikeModel({ show, selectedPost, handleClose, type }) {
                                     </div>
                                     <span className="font-medium">{item.user.name}</span>
                                 </div>
-                                <Button variant="outline" className="flex items-center px-3 py-1 text-sm">
+                                <Button variant="rounded" className="flex items-center px-3 py-1 text-sm border border-gray-300 hover:bg-gray-50">
                                     <UserPlus className="w-4 h-4 mr-1" />
                                     Thêm bạn bè
                                 </Button>

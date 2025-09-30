@@ -41,7 +41,7 @@ export default function ShareModal({
 
     return (
         <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50"
             onClick={handleCloseShareModal}
         >
             <div
@@ -117,9 +117,10 @@ export default function ShareModal({
                 {/* Footer */}
                 <div className="border-t p-4 flex justify-end">
                     <Button
+                        variant="rounded"
                         onClick={handleSubmit}
                         disabled={!shareContent.trim()}
-                        className="px-4"
+                        className="px-4 border border-gray-300"
                     >
                         <span className="inline-flex items-center gap-2">
                             <Send className="w-4 h-4" />

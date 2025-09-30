@@ -10,7 +10,7 @@ export default function Button({
   const baseStyle =
     `py-2 
     transition-all duration-200
-    hover:border-blue-500 hover:cursor-pointer shadow-lg`;
+    hover:border-blue-500 hover:cursor-pointer hover:shadow-md`;
 
   const variants = {
     rounded: `
@@ -18,8 +18,6 @@ export default function Button({
       rounded-4xl
       text-black text-base
       shadow-md
-      border border-transparent 
-      hover:border-blue-500 hover:shadow-lg
       px-3
     `,
     hamburger: `
@@ -27,18 +25,13 @@ export default function Button({
       rounded-full
       text-black text-base font-bold
       shadow-md
-      border border-transparent
-      hover:border-blue-500 hover:shadow-lg
       px-3 py-2
     `,
-    outline: `
-      bg-white
-      rounded-4xl
-      text-black text-base
-      shadow-md
+    icon: `
+      bg-transparent
+      rounded-lg
       border border-gray-300
-      hover:border-blue-500 hover:bg-gray-50
-      px-3
+      p-2
     `,
   };
 

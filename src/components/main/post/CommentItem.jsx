@@ -178,8 +178,8 @@ const CommentItem = ({ comment, onOpenViewer, depth = 0, activeReplyId, setActiv
                                     onChange={handleReplyCommentFilesChange}
                                 />
                                 <Button
-                                    variant="outline"
-                                    className="px-3"
+                                    variant="rounded"
+                                    className="border border-gray-300 hover:bg-gray-50 px-3"
                                     onClick={handleOpenReplyCommentPicker}
                                 >
                                     <span className="inline-flex items-center gap-2">
@@ -188,8 +188,9 @@ const CommentItem = ({ comment, onOpenViewer, depth = 0, activeReplyId, setActiv
                                     </span>
                                 </Button>
                                 <Button
+                                    variant="rounded"
                                     onClick={handleReplySubmit}
-                                    className="px-4"
+                                    className="px-4 border border-gray-300"
                                     disabled={
                                         !replyContent.trim() &&
                                         replyImages.length === 0

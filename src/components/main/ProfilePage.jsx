@@ -114,39 +114,40 @@ export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, ad
             <InputField
               value={formData.name}
               placeholder="Nhập tên của bạn"
-              className="w-full"
+              className="w-full border border-gray-300"
               onChange={(e) => handleChange("name", e.target.value)}
             />
             <InputField
               value={formData.email}
               placeholder="Nhập email của bạn"
-              className="w-full"
+              className="w-full border border-gray-300"
               readOnly
             />
             <InputField
               value={formData.mssv}
               placeholder="Nhập MSSV của bạn"
-              className="w-full"
+              className="w-full border border-gray-300"
               readOnly
             />
             <InputField
               value={formData.dateOfBirth}
               placeholder="Nhập ngày sinh của bạn"
-              className="w-full"
+              className="w-full border border-gray-300"
               type="date"
               onChange={(e) => handleChange("dateOfBirth", e.target.value)}
             />
             <InputField
               value={formData.address}
               placeholder="Nhập địa chỉ của bạn"
-              className="w-full"
+              className="w-full border border-gray-300"
               onChange={(e) => handleChange("address", e.target.value)}
             />
 
             <SelectField
               value={formData.gender || user?.gender || "nam"}
               fieldName="Giới tính"
-              className="w-full"
+              variant="rounded"
+              className="w-full border border-gray-300"
               onChange={(e) => handleChange("gender", e.target.value)}
               options={[
                 { value: "nam", label: "Nam" },
@@ -159,11 +160,16 @@ export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, ad
             <div className="w-full flex flex-col gap-3">
               <Button
                 text="Lưu thay đổi"
-                className="w-full"
+                variant="rounded"
+                className="w-full border border-gray-300"
                 onClick={handleSave}
                 disabled={!isChanged}
               />
-              <Button text="Đăng xuất" className="w-full" />
+              <Button 
+                text="Đăng xuất" 
+                variant="rounded"
+                className="w-full border border-gray-300" 
+              />
             </div>
           </div>
         </div>

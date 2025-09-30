@@ -126,6 +126,7 @@ export default function FriendPage() {
             text="Chấp nhận"
             onClick={() => handleAction("accept", user, context)}
             variant="rounded"
+            className="border border-gray-300"
           />
         )}
         {showButtons.includes("reject") && (
@@ -133,6 +134,7 @@ export default function FriendPage() {
             text="Từ chối"
             onClick={() => handleAction("reject", user, context)}
             variant="rounded"
+            className="border border-gray-300"
           />
         )}
         {showButtons.includes("cancel") && (
@@ -140,6 +142,7 @@ export default function FriendPage() {
             text="Hủy"
             onClick={() => handleAction("cancel", user, context)}
             variant="rounded"
+            className="border border-gray-300"
           />
         )}
         {showButtons.includes("remove") && (
@@ -147,6 +150,7 @@ export default function FriendPage() {
             text="Xóa"
             onClick={() => handleAction("remove", user, context)}
             variant="rounded"
+            className="border border-gray-300"
           />
         )}
         {showButtons.includes("send") && (
@@ -154,6 +158,7 @@ export default function FriendPage() {
             text="Kết bạn"
             onClick={() => handleAction("send_prev", user, context)}
             variant="rounded"
+            className="border border-gray-300"
           />
         )}
       </div>
@@ -173,7 +178,7 @@ export default function FriendPage() {
             placeholder="🔎︎ Tìm kiếm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full"
+            className="w-full border border-gray-300"
           />
         </div>
 
@@ -238,8 +243,13 @@ export default function FriendPage() {
                 rows={3}
               />
               <div className="flex justify-end space-x-2 mt-3">
-                <Button text="Hủy" variant="rounded" onClick={() => setSelectedUser(null)} />
-                <Button text="Gửi" onClick={() => handleAction("send", selectedUser, "search")} />
+                <Button text="Hủy" variant="rounded" className="border border-gray-300" onClick={() => setSelectedUser(null)} />
+                <Button 
+                  text="Gửi" 
+                  variant="rounded"
+                  className="border border-gray-300"
+                  onClick={() => handleAction("send", selectedUser, "search")} 
+                />
               </div>
             </div>
           </div>

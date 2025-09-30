@@ -33,7 +33,8 @@ export default function OutgoingCallModal({ conversation, currentUser, onCancel 
         </p>
         <Button
           text="❌ Huỷ cuộc gọi"
-          variant="danger"
+          variant="rounded"
+          className="border border-gray-300"
           onClick={() => onCancel(conversation.conversationId)} // phải bọc arrow function
 
         />

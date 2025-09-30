@@ -59,7 +59,8 @@ export default function ChangePasswordPage() {
           type="password"
           placeholder="Nhập mật khẩu mới"
           required
-          className="w-full max-w-md"
+          variant="rounded"
+          className="w-full max-w-md bg-white/50 border border-transparent"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -67,13 +68,14 @@ export default function ChangePasswordPage() {
           type="password"
           placeholder="Nhập lại mật khẩu mới"
           required
-          className="w-full max-w-md mt-2"
+          variant="rounded"
+          className="w-full max-w-md mt-2 bg-white/50 border border-transparent"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
         <Button
           text="Cập nhật"
-          className="w-full max-w-md mt-4"
+          className="w-full max-w-md mt-4 border border-transparent"
           onClick={handleResetPasswordClick}
         />
         <TextWithLink text="Trở lại trang đăng nhập?" linkText="Đăng nhập" to="/login" />

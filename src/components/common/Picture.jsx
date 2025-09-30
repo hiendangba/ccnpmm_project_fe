@@ -14,8 +14,6 @@ export default function Picture({
 
   const variants = {
     circle: "rounded-full border border-transparent hover:border-blue-500",
-    rounded: "rounded-xl border border-transparent hover:border-blue-500",
-    square: "rounded-none border border-transparent hover:border-blue-500",
   };
 
   return (
