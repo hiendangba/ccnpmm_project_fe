@@ -48,8 +48,7 @@ export default function FriendPage() {
   const handleAction = async (action, user, context = "users") => {
     let res;
     let requestId;
-
-    setIsUpdating(true); // bắt đầu thao tác
+    setIsUpdating(true);
     try {
       switch(action) {
         case "accept":

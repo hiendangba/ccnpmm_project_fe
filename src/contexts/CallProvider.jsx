@@ -38,7 +38,8 @@ export const CallProvider = ({ children, currentUser, }) => {
 
         onEvent("cancelCall", (data) => {
             if (data.from !== currentUser.id) {
-                setIncomingCall(null); // đóng modal cuộc gọi đến
+                setIncomingCall(null);
+                setOutgoingCall(null); // đóng modal cuộc gọi đến
             }
         });
 
