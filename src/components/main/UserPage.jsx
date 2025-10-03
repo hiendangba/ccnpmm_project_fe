@@ -12,10 +12,9 @@ import ImageViewer from "./ImageViewer";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function UserPage( {socket} ) {
+export default function UserPage({ socket }) {
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem("user"));
-    // Lấy từ localStorage nếu có, nếu không có thì chuyển sang trang đăng nhập
     const limit = 5;
 
     useEffect(() => {
@@ -71,13 +70,16 @@ export default function UserPage( {socket} ) {
                                 <p className="text-gray-500 mt-1">{user.bio ?? "Chưa cập nhật"}</p>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Button className="px-4">
+                                <Button 
+                                  variant="rounded"
+                                  className="px-4 border border-gray-300"
+                                >
                                     <span className="inline-flex items-center gap-2">
                                         <PlusCircle className="w-4 h-4" />
                                         <span>Thêm vào tin</span>
                                     </span>
                                 </Button>
-                                <Button variant="outline" className="px-4">
+                                <Button variant="rounded" className="border border-gray-300">
                                     <span className="inline-flex items-center gap-2">
                                         <Pencil className="w-4 h-4" />
                                         <span>Chỉnh sửa trang cá nhân</span>

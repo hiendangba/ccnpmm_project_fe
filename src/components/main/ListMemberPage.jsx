@@ -79,24 +79,26 @@ export default function ListMemberPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Tìm kiếm theo tên, MSSV hoặc email..."
-              className="flex-1"
+              className="flex-1 border border-gray-300"
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             />
             <Button
               text="Tìm kiếm"
+              variant="rounded"
+              className="w-[120px] border border-gray-300"
               onClick={handleSearch}
               disabled={isSearching}
-              className="w-[120px]"
             />
             {searchTerm && (
               <Button
                 text="Xóa"
+                variant="rounded"
+                className="w-[80px] border border-gray-300"
                 onClick={() => {
                   setSearchTerm('');
                   setCurrentPage(1);
                   fetchStudents(1, '');
                 }}
-                className="w-[80px]"
               />
             )}
           </div>
