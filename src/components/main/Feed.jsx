@@ -8,8 +8,9 @@ import ShareModal from "./post/ShareModal";
 
 import usePostsFeed from "../../hooks/usePostsFeed";
 import useSocketFeed from "../../hooks/useSocketFeed";
+import { set } from "lodash";
 
-export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, isPersonal }) {
+export default function Feed({ user, displayUser, guest,  socket, postsApi, limit = 5, onOpenViewer, isPersonal }) {
     const [toast, setToast] = useState(null);
 
     // modal Like
@@ -30,10 +31,12 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
     // ----- dùng hook quản lý posts -----
     const { posts, setPosts, isLoading, hasMore, fetchNext, sentinelRef } = usePostsFeed({
         postsApi,
-        user,
+        displayUser,
         isPersonal,
         limit,
+        displayUser
     });
+
 
     // ----- dùng hook socket -----
     const { commentPostRef, addCommentToTree } = useSocketFeed({
@@ -44,6 +47,8 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
         commentPost,
         setCommentPost,
     });
+
+
 
 
     const handlePost = async (content, selectedImages) => {
@@ -207,7 +212,7 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
     return (
         <div className="flex flex-col w-2/3 gap-4">
 
-            <PostComposer user={user} onPost={handlePost} onOpenViewer={onOpenViewer} />
+            { !guest && <PostComposer user={user} onPost={handlePost} onOpenViewer={onOpenViewer} /> }
 
             {posts.map((post) => (
                 <PostItem
@@ -218,6 +223,7 @@ export default function Feed({ user, socket, postsApi, limit = 5, onOpenViewer, 
                     handleOpenLikeModal={handleOpenLikeModal}
                     handleOpenCommentModal={handleOpenCommentModal}
                     handleOpenShareModal={handleOpenShareModal}
+                    user={user}
                 />
             ))}
 

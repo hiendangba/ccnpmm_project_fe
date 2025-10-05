@@ -2,10 +2,28 @@ import Button from "../../common/Button";
 import Picture from "../../common/Picture";
 import AltAvatar from "../../../assets/alt_avatar.png";
 import {  ThumbsUp, X, UserPlus, Share2 } from "lucide-react";
+import userApi from "../../../api/userApi";
+import { useNavigate } from "react-router-dom";
 
 
 export default function LikeModel({ show, selectedPost, handleClose, type }) {
     if (!show || !selectedPost) return null;
+    const user = JSON.parse(localStorage.getItem("user")) || null;
+    const navigate = useNavigate();
+
+    const viewPersonalPage = async (userId) => {
+
+        // lấy thông tin của user hiện tại
+        const result = await userApi.getUserPage( userId );
+        if (result?.user){
+            if (result.user.id === user.id){
+                navigate("/user-page", { state : { user: user }});
+            }
+            else{
+                navigate("/user-page", { state: { guest: result.user, user: user } });
+            }
+        }
+    }
 
     // xac dinh data theo type
     const items = type === "like" ? selectedPost.likes : selectedPost.shareUsers;
@@ -34,7 +52,7 @@ export default function LikeModel({ show, selectedPost, handleClose, type }) {
                     {items && items.length > 0 ? (
                         items.map((item) => (
                             <div key={item.user.id} className="flex items-center justify-between p-4 hover:bg-gray-50">
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3" onClick={() => viewPersonalPage(item.user.id)}>
                                     <div className="relative">
                                         <Picture
                                             src={item.user.avatarUrl ?? AltAvatar}

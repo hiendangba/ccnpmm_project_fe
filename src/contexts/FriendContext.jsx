@@ -15,6 +15,8 @@ export function FriendProvider({ children }) {
   const { currentUser } = useAuth();
   const socketRef = useRef(null);
 
+  const mainUser = JSON.parse(localStorage.getItem("user")) || null;
+
   const searchUsers = async (search) => {
     if (!search) {
       setSearchResults([]);
@@ -47,7 +49,7 @@ export function FriendProvider({ children }) {
     const fetchUsers = async () => {
       try {
         // 1. Lấy bạn bè
-        const friendsRes = await friendApi.getFriend();
+        const friendsRes = await friendApi.getFriend(mainUser.id);
         const friends = friendsRes.success
           ? friendsRes.data.listFriend.map(f => ({
             ...f,

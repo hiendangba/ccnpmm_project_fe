@@ -1,3 +1,4 @@
+import { data } from "react-router-dom";
 import axiosClient from "./axiosClient";
 
 const friendApi = {
@@ -9,8 +10,8 @@ const friendApi = {
     return axiosClient.get("/friend/requests/sent");
   },
 
-  getFriend() {
-    return axiosClient.get("/friend/list");
+  getFriend(userId) {
+    return axiosClient.get("/friend/list", { params: { userId } });
   },
 
   acceptFriend(data) {
