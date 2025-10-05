@@ -3,8 +3,12 @@ import Button from "../../common/Button";
 import Picture from "../../common/Picture";
 import AltAvatar from "../../../assets/alt_avatar.png";
 import { Image as ImageIcon, Send } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import userApi from "../../../api/userApi";
 
 const CommentItem = ({ comment, onOpenViewer, depth = 0, activeReplyId, setActiveReplyId, CommentSubmit }) => {
+    const navigate = useNavigate();
+    const user = JSON.parse(localStorage.getItem("user")) || null; 
     const isNested = depth > 0;
     const [replyContent, setReplyContent] = useState(""); // nội dung của comment reply
     const [replyImages, setReplyImages] = useState([]);  // hình ảnh của comment reply
@@ -54,20 +58,40 @@ const CommentItem = ({ comment, onOpenViewer, depth = 0, activeReplyId, setActiv
         setActiveReplyId(null);
     };
 
+    const viewUserPage = async (userId) => {
+        // lấy thông tin của user hiện tại
+        const result = await userApi.getUserPage( userId );
+        if (result?.user){
+            if (result.user.id === user.id){
+                navigate("/user-page", { state : { user: user }});
+            }
+            else{
+                navigate("/user-page", { state: { guest: result.user, user: user } });
+            }
+        }
+    }
+
 
     return (
         <div className={`mb-4 ${isNested ? 'ml-4' : ''}`}>
             {/* Comment chính */}
             <div className="flex gap-3">
                 <Picture
-                    src={comment.user?.avatarUrl ?? AltAvatar}
+                    src={
+                        comment.user?.avatarUrl
+                            ? comment.user.avatarUrl
+                            : comment.user?.avatar
+                                ? comment.user.avatar
+                                : AltAvatar
+                    }
                     size="sm"
                     variant="circle"
                     className="w-10 h-10 flex-shrink-0"
+                    onClick={() => viewUserPage(comment.user?.id || comment.user?._id)}
                 />
                 <div className="flex-1">
                     <div className={`rounded-lg p-3 ${isNested ? 'bg-gray-50 border-l-2 border-blue-200' : 'bg-gray-100'}`}>
-                        <p className="font-medium text-sm">{comment.user?.name}</p>
+                        <p className="font-medium text-sm" onClick={() => viewUserPage(comment.user?.id || comment.user?._id)} >{comment.user?.name} </p>
                         <p className="text-sm mt-1">{comment.content}</p>
 
                         {/* Hiển thị ảnh trong comment */}
@@ -107,7 +131,13 @@ const CommentItem = ({ comment, onOpenViewer, depth = 0, activeReplyId, setActiv
                         <div className="mt-3 border-t pt-3">
                             <div className="flex gap-3 mb-3">
                                 <Picture
-                                    src={comment.user?.avatarUrl ?? AltAvatar}
+                                    src={
+                                        comment.user?.avatarUrl
+                                            ? comment.user.avatarUrl
+                                            : comment.user?.avatar
+                                                ? comment.user.avatar
+                                                : AltAvatar
+                                    }
                                     size="sm"
                                     variant="circle"
                                     className="w-10 h-10 flex-shrink-0"
@@ -209,17 +239,17 @@ const CommentItem = ({ comment, onOpenViewer, depth = 0, activeReplyId, setActiv
             {/* Hiển thị comment con */}
             {comment.childs && comment.childs.length > 0 && (
                 <div className="mt-3 space-y-3">
-                    {comment.childs.map((childComment) => (
-                        <CommentItem
-                            key={childComment.id}
-                            comment={childComment}
-                            onOpenViewer={onOpenViewer}
-                            depth={depth + 1}
-                            activeReplyId={activeReplyId}
-                            setActiveReplyId={setActiveReplyId}
-                            CommentSubmit={CommentSubmit}
-                        />
-                    ))}
+                        {comment.childs.map((childComment) => (
+                            <CommentItem
+                                key={childComment.id}
+                                comment={childComment}
+                                onOpenViewer={onOpenViewer}
+                                depth={depth + 1}
+                                activeReplyId={activeReplyId}
+                                setActiveReplyId={setActiveReplyId}
+                                CommentSubmit={CommentSubmit}
+                            />
+                        ))}
                 </div>
             )}
         </div>
