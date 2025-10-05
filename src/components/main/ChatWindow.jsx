@@ -5,17 +5,40 @@ import InputField from "../common/InputField";
 import Toast from "../common/Toast";
 import AltAvatar from "../../assets/alt_avatar.png";
 import { useMessages } from "../../hooks/useMessages";
+import { useAuth } from "../../contexts/AuthProvider"; 
+import { useCallProvider } from "../../contexts/CallProvider";
+
 import { formatMessageTime, shouldShowTime } from "../../utils/timeUtils";
+import IncomingCallModal from "../call/IncomingCallModal";
+import OutgoingCallModal from "../call/OutgoingCallModal";
+import CallScreen from "../call/CallScreen"
 
 export default function ChatWindow({ selectedConversation }) {
-  const currentUser = JSON.parse(localStorage.getItem("user"));
+  const { currentUser } = useAuth();
   const [toast, setToast] = useState(null);
   const [activeReaderIndex, setActiveReaderIndex] = useState(null);
   const tooltipRefs = useRef([]);
   const fileInputRef = useRef(null);
   const [messageInput, setMessageInput] = useState("");
-  const [pastedImage, setPastedImage] = useState(null); // ảnh vừa paste
+  const [pastedImage, setPastedImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+
+  // --- Sử dụng CallProvider ---
+  const { 
+    startCall,
+    acceptCall,
+    declineCall,
+    cancelCall,
+    incomingCall,
+    outgoingCall,
+    localStream,
+    remoteStreams,
+    isCalling,
+    activeCall
+  } = useCallProvider();
+
+  const { messages, messagesEndRef, containerRef, messageRefs, fetchMessages, sendMessage } =
+    useMessages(selectedConversation, currentUser);
 
   /* tạo/revoke object URL khi pastedImage thay đổi */
   useEffect(() => {
@@ -33,9 +56,7 @@ export default function ChatWindow({ selectedConversation }) {
     for (let i = 0; i < items.length; i++) {
       if (items[i].type.startsWith("image/")) {
         const file = items[i].getAsFile();
-        if (file) {
-          setPastedImage(file); // lưu ảnh vào state, chưa gửi
-        }
+        if (file) setPastedImage(file);
         e.preventDefault();
         return;
       }
@@ -44,49 +65,19 @@ export default function ChatWindow({ selectedConversation }) {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setPastedImage(file); // cũng lưu ảnh vào state
-    }
+    if (file) setPastedImage(file);
   };
 
-  const handleSendMessage =  () => {
+  const handleSendMessage = () => {
     if (pastedImage) {
       sendMessage("", pastedImage);
-      setPastedImage(null);           // clear preview
-      if (fileInputRef.current) 
-        fileInputRef.current.value = ""; // reset input
-
+      setPastedImage(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     } else if (messageInput.trim()) {
-      sendMessage(messageInput, null); // gửi text
+      sendMessage(messageInput, null);
       setMessageInput("");
     }
   };
-
-  useEffect(() => {
-    if (activeReaderIndex !== null && tooltipRefs.current[activeReaderIndex]) {
-      requestAnimationFrame(() => {
-        const el = tooltipRefs.current[activeReaderIndex];
-        const rect = el.getBoundingClientRect();
-        const screenWidth = window.innerWidth;
-
-        let style = { left: "50%", transform: "translateX(-50%)" };
-
-        if (rect.right > screenWidth) {
-          style = { right: "0", left: "auto", transform: "none" };
-        } else if (rect.left < 0) {
-          style = { left: "0", transform: "none" };
-        }
-
-        el.style.left = style.left ?? "";
-        el.style.right = style.right ?? "";
-        el.style.transform = style.transform ?? "";
-      });
-    }
-  }, [activeReaderIndex]);
-
-
-  const { messages, messagesEndRef, containerRef, messageRefs, fetchMessages, sendMessage } =
-    useMessages(selectedConversation, currentUser);
 
   if (!selectedConversation) return (
     <div className="flex-1 flex items-center justify-center bg-gray-50">
@@ -120,9 +111,11 @@ export default function ChatWindow({ selectedConversation }) {
           <h3 className="text-lg font-medium text-gray-900">{convName}</h3>
         </div>
         <div className="flex items-center space-x-2">
-          <Button text="📞" variant="icon" className="w-10 h-10" />
-          <Button text="📹" variant="icon" className="w-10 h-10" />
-          <Button text="⋯" variant="icon" className="w-10 h-10" />
+          <Button
+            text="📞"
+            variant="icon"
+            onClick={() => startCall("video",selectedConversation)}
+          />
         </div>
       </div>
 
@@ -142,119 +135,118 @@ export default function ChatWindow({ selectedConversation }) {
 
           return (
             <div key={message.id} data-message={message.id}
-                 ref={(el) => { messageRefs.current[message.id] = el; }}
-                 className={`flex flex-col ${isMine ? "items-end" : "items-start"}`}>
+              ref={(el) => { messageRefs.current[message.id] = el; }}
+              className={`flex flex-col ${isMine ? "items-end" : "items-start"}`}>
               <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${isMine ? "bg-blue-500 text-white" : "bg-white text-gray-900"}`}>
                 {!isMine && selectedConversation.isGroup && <p className="text-xs font-semibold">{sender?.name || "Ai đó"}</p>}
-                
+
                 {message.attachments?.some(a => a != null) ? (
                   <img
-                    src={message.attachments.find(a => a != null)?.url} // lấy phần tử hợp lệ đầu tiên
+                    src={message.attachments.find(a => a != null)?.url}
                     alt="Attachment"
                     className="rounded-lg max-w-full h-auto"
                   />
                 ) : (
                   <p className="text-sm">{message.content}</p>
                 )}
-    
 
                 {shouldShowTime(messages, idx) && <p className={`text-xs mt-1 ${isMine ? "text-blue-100" : "text-gray-500"}`}>{formatMessageTime(message.createdAt)}</p>}
               </div>
-                <div className="flex items-center space-x-2 mt-1 relative">
-                      {readers.map((r, i) => (
-                        <div key={i} className="relative">
-                          <Picture
-                            src={r.avatar ? r.avatar : AltAvatar}
-                            alt={r.name}
-                            size="xs"
-                            variant="circle"
-                            className="w-5 h-5 border-2 border-white cursor-pointer"
-                            onClick={() =>
-                              setActiveReaderIndex(activeReaderIndex === i ? null : i)
-                            }
-                          />
-                          {activeReaderIndex === i && (
-                            <div
-                              ref={el => (tooltipRefs.current[i] = el)}
-                              className="absolute -bottom-5 whitespace-nowrap text-[10px] 
+
+              <div className="flex items-center space-x-2 mt-1 relative">
+                {readers.map((r, i) => (
+                  <div key={i} className="relative">
+                    <Picture
+                      src={r.avatar ? r.avatar : AltAvatar}
+                      alt={r.name}
+                      size="xs"
+                      variant="circle"
+                      className="w-5 h-5 border-2 border-white cursor-pointer"
+                      onClick={() =>
+                        setActiveReaderIndex(activeReaderIndex === i ? null : i)
+                      }
+                    />
+                    {activeReaderIndex === i && (
+                      <div
+                        ref={el => (tooltipRefs.current[i] = el)}
+                        className="absolute -bottom-5 whitespace-nowrap text-[10px] 
                                         bg-gray-800 text-white px-1 py-0.5 rounded shadow z-50"
-                            >
-                              {r.name}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+                      >
+                        {r.name}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           );
         })}
         <div ref={messagesEndRef} />
       </div>
-{/* Input + Preview */}
-<div className="p-4 border-t border-gray-200 bg-white">
-  {/* hàng input + các nút */}
-  <div className="flex items-center space-x-2">
-    <InputField
-      value={messageInput}
-      onChange={(e) => setMessageInput(e.target.value)}
-      placeholder={`Nhập tin nhắn tới ${convName}`}
-      className="flex-1"
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          handleSendMessage();
-        }
-      }}
-      onPaste={handlePaste} // lưu ảnh vào state, chứ chưa gửi
-    />
 
-    <Button
-      text="📎"
-      variant="icon"
-      className="w-10 h-10"
-      onClick={() => fileInputRef.current?.click()}
-    />
-
-    <input
-      type="file"
-      accept="image/*"
-      ref={fileInputRef}
-      className="hidden"
-      onChange={handleFileChange}
-    />
-
-    <Button
-      text="📤"
-      variant="primary"
-      className="px-4"
-      onClick={handleSendMessage}
-    />
-  </div>
-
-  {/* preview nằm DƯỚI ô input, không chen hàng ngang */}
-  {previewUrl && (
-    <div className="mt-3 flex justify-center">
-      <div className="bg-white p-2 rounded shadow inline-block">
-        <img
-          src={previewUrl}
-          alt="preview"
-          className="w-32 h-32 object-cover rounded"
-        />
-        <div className="flex justify-between mt-2">
-          <button
-            className="text-xs text-red-500 mr-2"
-            onClick={() => {
-              setPastedImage(null);
-              if (fileInputRef.current) fileInputRef.current.value = "";
+      {/* Input + Preview */}
+      <div className="p-4 border-t border-gray-200 bg-white">
+        <div className="flex items-center space-x-2">
+          <InputField
+            value={messageInput}
+            onChange={(e) => setMessageInput(e.target.value)}
+            placeholder={`Nhập tin nhắn tới ${convName}`}
+            className="flex-1"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleSendMessage();
+              }
             }}
-          >
-            ❌ Xóa
-          </button>
+            onPaste={handlePaste}
+          />
+
+          <Button
+            text="📎"
+            variant="icon"
+            className="w-10 h-10"
+            onClick={() => fileInputRef.current?.click()}
+          />
+
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            className="hidden"
+            onChange={handleFileChange}
+          />
+
+          <Button
+            text="📤"
+            variant="primary"
+            className="px-4"
+            onClick={handleSendMessage}
+          />
         </div>
+
+        {previewUrl && (
+          <div className="mt-3 flex justify-center">
+            <div className="bg-white p-2 rounded shadow inline-block">
+              <img
+                src={previewUrl}
+                alt="preview"
+                className="w-32 h-32 object-cover rounded"
+              />
+              <div className="flex justify-between mt-2">
+                <button
+                  className="text-xs text-red-500 mr-2"
+                  onClick={() => {
+                    setPastedImage(null);
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                  }}
+                >
+                  ❌ Xóa
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
-  )}
-</div>
 
       {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
     </>

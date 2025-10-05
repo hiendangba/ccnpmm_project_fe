@@ -47,7 +47,7 @@ export default function VerifyOTPPage() {
   return (
     <>
       <AuthPage title="Xác Thực OTP">
-        <p className="text-black mb-4">Bạn có {tryTime} lần thử OTP.</p>
+        <p className="text-black mb-4 text-[24px]">Bạn có {tryTime} lần thử OTP</p>
         <InputField
           placeholder="Nhập OTP"
           required

@@ -4,9 +4,11 @@ const userApi = {
   getProfile(data) {
     return axiosClient.get("/user/profile", data); // không cần token
   },
+
   all(data) {
     return axiosClient.get("/user/all", { params: data }); // data sẽ thành query string
   },  
+
   updateProfile(data) {
     return axiosClient.put("/user/profile", data);
   },
@@ -17,9 +19,11 @@ const userApi = {
       }
     });
   },
+
   searchUser (data){
-    return axiosClient.post("/user/find-user", data);
-  }
+    return axiosClient.get("/user/find-user", {params: data});
+  },
+  
 };
 
 export default userApi;

@@ -9,17 +9,21 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import userApi from "../../api/userApi"
+import { useAuth } from "../../contexts/AuthProvider";
+
 
 export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, address, gd }) {
+  const { currentUser } = useAuth();
+  const formatDate = (date) => date ? new Date(date).toISOString().split("T")[0] : "";
   const navigate = useNavigate();
   const location = useLocation();
-  const user = location.state?.res;
+  const user = location.state?.user || currentUser;
   const initialData = useMemo(() => ({
     avatar: user?.avatar || avatar || "",
     name: user?.name || name || "",
     mssv: user?.mssv || mssv || "",
     email: user?.email || email || "",
-    dateOfBirth: user?.dateOfBirth || dateOfBirth || "",
+    dateOfBirth: formatDate(user?.dateOfBirth || dateOfBirth),
     address: user?.address || address || "",
     gender: user?.gender || gd || "nam"   // mặc định "nam"
   }), [avatar, name, mssv, email, dateOfBirth, address, gd]);

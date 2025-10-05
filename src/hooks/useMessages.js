@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import messageApi from "../api/messageApi";
-import { initSocket, joinRoom, leaveRoom, onEvent } from "../socket/socket";
+import {initSocket ,joinRoom, leaveRoom, onEvent } from "../socket/socket";
 
 export const useMessages = (selectedConversation, currentUser) => {
   const [messages, setMessages] = useState([]);
@@ -16,7 +16,7 @@ export const useMessages = (selectedConversation, currentUser) => {
   // init socket + event
   useEffect(() => {
     if (!selectedConversation) return;
-    const socket = initSocket();
+    initSocket();
     joinRoom(selectedConversation.conversationId);
 
     onEvent("receiveMessage", (message) => {
@@ -166,6 +166,7 @@ export const useMessages = (selectedConversation, currentUser) => {
 
       if (files.length > 0) {
         formData.append("attachments", files[0]); // chỉ gửi 1 ảnh
+        formData.append("type", "image");
       }
 
       const res = await messageApi.sendMessage(formData);

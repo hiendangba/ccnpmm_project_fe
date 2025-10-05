@@ -1,4 +1,10 @@
 import axios from "axios";
+import authApi from "./authApi"
+let getToken; 
+
+export const setTokenGetter = (fn) => {
+  getToken = fn;
+};
 
 const axiosClient = axios.create({
     baseURL: "http://localhost:3001/api",
@@ -7,23 +13,35 @@ const axiosClient = axios.create({
   },
   withCredentials: true
 })
-axiosClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
 
-// Interceptor cho response
+
+axiosClient.interceptors.request.use((config) => {
+  const token = getToken ? getToken() : null;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 axiosClient.interceptors.response.use(
-  (response) => {
-    return response.data;
+  async (response) => {
+    return response.data; // trả về luôn data
   },
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const res = await authApi.refreshToken(); // backend đọc cookie httpOnly
+        const newToken = res.token;
+        setTokenGetter(() => newToken);
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        const retryResponse = await axios(originalRequest);
+        return retryResponse.data; // trả về data của request cũ
+      } catch (err) {
+        return Promise.reject(err);
+      }
+    }
     return Promise.reject(error);
   }
 );

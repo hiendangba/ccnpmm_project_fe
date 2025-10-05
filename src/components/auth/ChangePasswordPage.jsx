@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authApi from '../../api/authApi';
 
-export default function ResetPasswordPage() {
+export default function ChangePasswordPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [toast, setToast] = useState(null);
@@ -62,7 +62,7 @@ export default function ResetPasswordPage() {
           className="w-[482px] mt-4"
           onClick={handleResetPasswordClick}
         />
-        <TextWithLink text="Đã nhớ mật khẩu?" linkText="Đăng nhập" to="/login" />
+        <TextWithLink text="Trở lại trang đăng nhập?" linkText="Đăng nhập" to="/login" />
         <TextWithLink text="Muốn tạo tài khoản mới?" linkText="Đăng ký" to="/register" />
       </AuthPage>
 
