@@ -1,15 +1,30 @@
 import { ThumbsUp, MessageCircle, Share2 } from "lucide-react";
 import Picture from "../../common/Picture";
 import AltAvatar from "../../../assets/alt_avatar.png";
+import { useNavigate } from "react-router-dom";
+import userApi from "../../../api/userApi";
 
-export default function PostItem({ post, onOpenViewer, handleToggleLike, handleOpenLikeModal, handleOpenCommentModal, handleOpenShareModal }) {
+export default function PostItem({ post, onOpenViewer, handleToggleLike, handleOpenLikeModal, handleOpenCommentModal, handleOpenShareModal, user}) {
+    const navigate = useNavigate();
+    const handleGoToProfile = async (userId) => {
+        // lấy thông tin của user hiện tại
+        const result = await userApi.getUserPage( userId );
+        if (result?.user){
+            if (result.user.id === user.id){
+                navigate("/user-page", { state : { user: user }});
+            }
+            else{
+                navigate("/user-page", { state: { guest: result.user, user: user } });
+            }
+        }
+    }
     return (
         <div key={post.id} className="bg-white p-4 rounded-2xl shadow-sm">
             {/* Header */}
-            <div className="flex items-center gap-3 mb-3">
-                <Picture src={post.user.avatarUrl ?? AltAvatar} size="sm" variant="circle" className="w-10 h-10" />
+            <div className="flex items-center gap-3 mb-3 cursor-pointer"  onClick={() => handleGoToProfile(post.user.id)} >
+                <Picture src={ post.user.avatarUrl ?? AltAvatar } size="sm" variant="circle" className="w-10 h-10" />
                 <div>
-                    <p className="font-semibold">{post.user.name}</p>
+                    <p className="font-semibold">{ post.user.name }</p>
                     <p className="text-gray-400 text-xs">{new Date(post.createdAt).toLocaleString()}</p>
                 </div>
             </div>

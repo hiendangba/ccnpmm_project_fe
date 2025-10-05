@@ -23,6 +23,12 @@ const userApi = {
   searchUser (data){
     return axiosClient.get("/user/find-user", {params: data});
   },
+
+  getUserPage(userId) {
+    return axiosClient.get("/user/userInfo", {
+      params: { userId }
+    }); // không cần token
+  },
   
 };
 

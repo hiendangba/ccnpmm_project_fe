@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 
 // quản lý state bài viết và infinite scroll
-export default function usePostsFeed({ postsApi, user, isPersonal, limit = 5 }) {
+export default function usePostsFeed({ postsApi, displayUser, isPersonal, limit = 5 }) {
     const [posts, setPosts] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
@@ -24,7 +24,7 @@ export default function usePostsFeed({ postsApi, user, isPersonal, limit = 5 }) 
             const result = await postsApi.getAllPost({
                 page,
                 limit,
-                userId: isPersonal ? user.id : ""
+                userId: isPersonal ? displayUser.id : ""
             });
 
             const list = result.listResult || [];
@@ -54,11 +54,20 @@ export default function usePostsFeed({ postsApi, user, isPersonal, limit = 5 }) 
             loadingRef.current = false;
             setIsLoading(false);
         }
-    }, [postsApi, limit, isPersonal, user?.id]);    
+    }, [postsApi, limit, isPersonal, displayUser?.id]);    
 
     useEffect(() => {
         fetchNext();
     }, [fetchNext]);
+
+    useEffect(() => {
+        // reset posts khi đổi sang user khác
+        setPosts([]);
+        pageRef.current = 1;
+        hasMoreRef.current = true;
+
+        fetchNext();
+    }, [displayUser?.id]);
 
     useEffect(() => {
         const node = sentinelRef.current;
@@ -76,6 +85,8 @@ export default function usePostsFeed({ postsApi, user, isPersonal, limit = 5 }) 
         obs.observe(node);
         return () => obs.disconnect();
     }, [fetchNext]);
+
+
 
     return { posts, setPosts, isLoading, hasMore, fetchNext, sentinelRef };
 }

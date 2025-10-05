@@ -6,7 +6,7 @@ const postsApi = {
     },
     likePost (data) {
         return axiosClient.post("/post/likePost", data)
-    },
+    }, 
     commentPost (data) {
         return axiosClient.post("/post/commentPost", data, {
             headers: {
@@ -16,6 +16,13 @@ const postsApi = {
     },
     sharePost (data) {
         return axiosClient.post("/post/sharePost", data)
+    },
+    uploadAvt (data) {
+        return axiosClient.post("/post/uploadAvt", data, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        })
     }
 }
 
