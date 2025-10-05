@@ -58,7 +58,7 @@ export default function CommentModel({
     if (!showCommentModal || !commentPost) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={handleCloseCommentModal}>
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50" onClick={handleCloseCommentModal}>
             <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b">
@@ -155,15 +155,16 @@ export default function CommentModel({
                             className="hidden"
                             onChange={handleCommentFilesChange}
                         />
-                        <Button variant="outline" className="px-3" onClick={handleOpenCommentPicker}>
+                        <Button variant="rounded" className="border border-gray-300 hover:bg-gray-50" onClick={handleOpenCommentPicker}>
                             <span className="inline-flex items-center gap-2">
                                 <ImageIcon className="w-4 h-4" />
                                 <span>Ảnh/Video</span>
                             </span>
                         </Button>
                         <Button
+                            variant="rounded"
                             onClick={handleSubmit}
-                            className="px-4"
+                            className="px-4 border border-gray-300"
                             disabled={!commentContent.trim() && commentImages.length === 0}
                         >
                             <span className="inline-flex items-center gap-2">

@@ -177,20 +177,26 @@ export default function UserPage({ socket }) {
                             </div>
                             {/* Nếu không có guest (chính chủ) thì mới hiện nút */}
                             {!guest && (
-                                <div className="flex items-center gap-2">
-                                    <Button className="px-4">
-                                        <span className="inline-flex items-center gap-2">
-                                            <PlusCircle className="w-4 h-4" />
-                                            <span>Thêm vào tin</span>
-                                        </span>
-                                    </Button>
-                                    <Button variant="outline" className="px-4">
-                                        <span className="inline-flex items-center gap-2">
-                                            <Pencil className="w-4 h-4" />
-                                            <span>Chỉnh sửa trang cá nhân</span>
-                                        </span>
-                                    </Button>
-                                </div>
+                              <div className="flex items-center gap-2 mt-4 sm:mt-0">
+                                <Button 
+                                  variant="rounded"
+                                  className="px-4 border border-gray-300"
+                                >
+                                  <span className="inline-flex items-center gap-2">
+                                    <PlusCircle className="w-4 h-4" />
+                                    <span>Thêm vào tin</span>
+                                  </span>
+                                </Button>
+                                <Button 
+                                  variant="rounded"
+                                  className="border border-gray-300"
+                                >
+                                  <span className="inline-flex items-center gap-2">
+                                    <Pencil className="w-4 h-4" />
+                                    <span>Chỉnh sửa trang cá nhân</span>
+                                  </span>
+                                </Button>
+                              </div>
                             )}
                         </div>
 

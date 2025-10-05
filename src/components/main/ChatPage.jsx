@@ -85,7 +85,7 @@ export default function ChatPage() {
           </div>
 
           <div className="p-4 border-b border-gray-200">
-            <InputField placeholder="Tìm kiếm cuộc trò chuyện" className="w-full" />
+            <InputField placeholder="Tìm kiếm cuộc trò chuyện" className="w-full border border-gray-300" />
           </div>
 
           <div className="flex-1 overflow-y-auto">

@@ -191,7 +191,7 @@ export default function ChatWindow({ selectedConversation }) {
             value={messageInput}
             onChange={(e) => setMessageInput(e.target.value)}
             placeholder={`Nhập tin nhắn tới ${convName}`}
-            className="flex-1"
+            className="flex-1 border border-gray-300"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
@@ -218,8 +218,8 @@ export default function ChatWindow({ selectedConversation }) {
 
           <Button
             text="📤"
-            variant="primary"
-            className="px-4"
+            variant="rounded"
+            className="border border-gray-300"
             onClick={handleSendMessage}
           />
         </div>

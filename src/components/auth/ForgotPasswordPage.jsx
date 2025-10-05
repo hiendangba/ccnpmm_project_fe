@@ -11,9 +11,8 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [toast, setToast] = useState(null);
   const navigate = useNavigate();
-  const validateEmail = (email) => {
-    return /\S+@\S+\.\S+/.test(email);
-  };
+
+  const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
   const handleForgotPasswordClick = async () => {
     if (!validateEmail(email)) {
@@ -26,26 +25,50 @@ export default function ForgotPasswordPage() {
       localStorage.setItem("flowId", response.flowId);
       localStorage.setItem("tryTime", response.tryTime);
 
-      setToast({ message: response.message , type: "success" });
-      navigate("/verify-otpFP"); 
+      setToast({ message: response.message, type: "success" });
+      navigate("/verify-otpFP");
 
     } catch (error) {
-      const message = error.response?.data?.message || error.message || "Thất bại khi kết nối với máy chủ.";
-      setToast({ message: message, type: "error" });
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Thất bại khi kết nối với máy chủ.";
+      setToast({ message, type: "error" });
     }
   };
 
   return (
     <>
       <AuthPage title="Quên Mật Khẩu">
-        <InputField type="email" placeholder='Nhập mail' required className='w-[482px]' value={email} onChange={(e) => setEmail(e.target.value)} />
-        <Button text="Gửi OTP" className='w-[482px]' onClick={handleForgotPasswordClick} />
-        <TextWithLink text="Đã nhớ mật khẩu?" linkText="Đăng nhập" to="/login" />
-        <TextWithLink text="Muốn tạo tài khoản mới?" linkText="Đăng ký" to="/register" />
+        <InputField
+          type="email"
+          placeholder="Nhập email"
+          required
+          variant="rounded"
+          className="w-full max-w-md bg-white/50 border border-transparent"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <Button
+          text="Gửi OTP"
+          className="w-full max-w-md border border-transparent"
+          onClick={handleForgotPasswordClick}
+        />
+        <TextWithLink
+          text="Đã nhớ mật khẩu?"
+          linkText="Đăng nhập"
+          to="/login"
+        />
+        <TextWithLink
+          text="Muốn tạo tài khoản mới?"
+          linkText="Đăng ký"
+          to="/register"
+        />
       </AuthPage>
 
       {toast && (
         <Toast
+          key={toast.message + toast.type}
           message={toast.message}
           type={toast.type}
           onClose={() => setToast(null)}

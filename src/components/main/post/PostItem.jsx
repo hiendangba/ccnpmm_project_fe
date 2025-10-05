@@ -19,7 +19,7 @@ export default function PostItem({ post, onOpenViewer, handleToggleLike, handleO
         }
     }
     return (
-        <div key={post.id} className="bg-white p-4 rounded-lg shadow-sm border">
+        <div key={post.id} className="bg-white p-4 rounded-2xl shadow-sm">
             {/* Header */}
             <div className="flex items-center gap-3 mb-3 cursor-pointer"  onClick={() => handleGoToProfile(post.user.id)} >
                 <Picture src={ post.user.avatarUrl ?? AltAvatar } size="sm" variant="circle" className="w-10 h-10" />
@@ -106,7 +106,12 @@ export default function PostItem({ post, onOpenViewer, handleToggleLike, handleO
                         </span>
                     )}
                     {post.commentCount > 0 && (
-                        <span onClick={() => handleOpenCommentModal(post)} >{post.commentCount} bình luận</span>
+                        <span
+                            onClick={() => handleOpenCommentModal(post)}
+                            className="cursor-pointer hover:underline"
+                        >
+                            {post.commentCount} bình luận
+                        </span>
                     )}
                 </div>
                 {post.shareCount > 0 && (

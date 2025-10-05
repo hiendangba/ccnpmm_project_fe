@@ -37,7 +37,7 @@ export default function LikeModel({ show, selectedPost, handleClose, type }) {
         );
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={handleClose}>
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50" onClick={handleClose}>
             <div className="bg-white rounded-lg w-full max-w-md max-h-[80vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b">
@@ -66,7 +66,7 @@ export default function LikeModel({ show, selectedPost, handleClose, type }) {
                                     </div>
                                     <span className="font-medium">{item.user.name}</span>
                                 </div>
-                                <Button variant="outline" className="px-3 py-1 text-sm">
+                                <Button variant="rounded" className="flex items-center px-3 py-1 text-sm border border-gray-300 hover:bg-gray-50">
                                     <UserPlus className="w-4 h-4 mr-1" />
                                     Thêm bạn bè
                                 </Button>

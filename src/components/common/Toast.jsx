@@ -4,7 +4,7 @@ export default function Toast({ message, type = "success", onClose, duration = 3
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(false), duration - 300); 
+    const timer = setTimeout(() => setVisible(false), duration - 300);
     const removeTimer = setTimeout(() => onClose?.(), duration);
 
     return () => {
@@ -22,7 +22,7 @@ export default function Toast({ message, type = "success", onClose, duration = 3
 
   return (
     <div
-      className={`fixed top-5 right-5 px-4 py-2 rounded shadow-lg text-white transition-all duration-300 transform ${
+      className={`fixed top-5 right-5 px-3 py-1.5 rounded-md shadow-md text-sm font-medium text-white transition-all duration-300 transform ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
       } ${colors[type]}`}
       style={{ zIndex: 9999 }}

@@ -10,36 +10,30 @@ export default function Button({
   const baseStyle =
     `py-2 
     transition-all duration-200
-    hover:border-blue-500 hover:shadow-lg`;
+    hover:border-blue-500 hover:cursor-pointer hover:shadow-md`;
 
-const variants = {
-  rounded: `
-    bg-white 
-    rounded-4xl
-    text-black text-[24px]
-    shadow-md
-    border-3 border-transparent 
-    hover:border-blue-500 hover:shadow-lg
-    px-4
+  const variants = {
+    rounded: `
+      bg-white 
+      rounded-4xl
+      text-black text-base
+      shadow-md
+      px-3
     `,
     hamburger: `
       bg-white 
       rounded-full
-      text-black text-[24px] font-bold
+      text-black text-base font-bold
       shadow-md
-      border-3 border-transparent
-      hover:border-blue-500 hover:shadow-lg
+      px-3 py-2
     `,
-    outline: `
-      bg-white
-      rounded-4xl
-      text-black text-[24px]
-      border-2 border-gray-300
-      hover:border-blue-500 hover:bg-gray-50
-      px-4
+    icon: `
+      bg-transparent
+      rounded-lg
+      border border-gray-300
+      p-2
     `,
-};
-
+  };
 
   return (
     <button
