@@ -165,10 +165,10 @@ export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, ad
                 onClick={handleSave}
                 disabled={!isChanged}
               />
-              <Button 
-                text="Đăng xuất" 
+              <Button
+                text="Đăng xuất"
                 variant="rounded"
-                className="w-full border border-gray-300" 
+                className="w-full border border-gray-300"
               />
             </div>
           </div>

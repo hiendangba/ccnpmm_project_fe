@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import messageApi from "../api/messageApi";
-import {initSocket ,joinRoom, leaveRoom, onEvent } from "../socket/socket";
+import { initSocket, joinRoom, leaveRoom, onEvent } from "../socket/socket";
 import { useMessageContext } from "../contexts/MessageContext";
 
 export const useMessages = (selectedConversation, currentUser) => {
@@ -22,83 +22,83 @@ export const useMessages = (selectedConversation, currentUser) => {
 
     onEvent("receiveMessage", (message) => {
 
-        if (message.senderId !== currentUser.id && message.conversationId === selectedConversation.conversationId) {
-            setMessages(prev => [...prev, message]);
-            setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
-        }
+      if (message.senderId !== currentUser.id && message.conversationId === selectedConversation.conversationId) {
+        setMessages(prev => [...prev, message]);
+        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+      }
     });
 
     onEvent("messageRead", (message) => {
-        if (message.conversationId === selectedConversation.conversationId) {
+      if (message.conversationId === selectedConversation.conversationId) {
 
         setMessages(prev =>
-            prev.map(m => m.id === message.id ? { ...m, ...message } : m)
+          prev.map(m => m.id === message.id ? { ...m, ...message } : m)
         );
-        }
+      }
     });
 
 
     onEvent("receiveCall", (message) => {
-        if (message.senderId !== currentUser.id && message.conversationId === selectedConversation.conversationId) {
-            setMessages(prev => [...prev, message]);
-            setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
-        }
+      if (message.senderId !== currentUser.id && message.conversationId === selectedConversation.conversationId) {
+        setMessages(prev => [...prev, message]);
+        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+      }
     });
 
 
     onEvent("updateCallStatus", (message) => {
-      if(message.callStatus === "canceled"){
-        if(message.senderId !== currentUser.id && message.conversationId === selectedConversation.conversationId){
+      if (message.callStatus === "canceled") {
+        if (message.senderId !== currentUser.id && message.conversationId === selectedConversation.conversationId) {
           setMessages(prev => {
             const exists = prev.some(m => m.id === message._id || m._id === message._id);
 
             if (exists) {
               return prev.map(m =>
                 m.id === message._id || m._id === message._id
-                  ? { ...m, callStatus: message.callStatus ,duration: message.duration }
+                  ? { ...m, callStatus: message.callStatus, duration: message.duration }
                   : m
               );
             }
 
             return [...prev, { ...message, id: message._id }];
-          });          
+          });
           setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
         }
       }
-      else{
+      else {
         const length = message.rejectedUsers ? message.rejectedUsers.length : 0;
-        
-        if(message.rejectedUsers[length-1] !== currentUser.id && message.conversationId === selectedConversation.conversationId){
+
+        if (message.rejectedUsers[length - 1] !== currentUser.id && message.conversationId === selectedConversation.conversationId) {
           setMessages(prev => {
             const exists = prev.some(m => m.id === message._id || m._id === message._id);
 
             if (exists) {
               return prev.map(m =>
                 m.id === message._id || m._id === message._id
-                  ? { ...m, callStatus: message.callStatus,duration: message.duration }
+                  ? { ...m, callStatus: message.callStatus, duration: message.duration }
                   : m
               );
             }
 
             return [...prev, { ...message, id: message._id }];
-          });          
+          });
           setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
         }
-      } 
-      if(message.callStatus === "ended"){
-        if(message.senderId !== currentUser.id && message.conversationId === selectedConversation.conversationId){
+      }
+      if (message.callStatus === "ended") {
+        if (message.senderId !== currentUser.id && message.conversationId === selectedConversation.conversationId) {
           setMessages(prev => {
             const exists = prev.some(m => m.id === message._id || m._id === message._id);
             if (exists) {
               return prev.map(m =>
                 m.id === message._id || m._id === message._id
-                  ? { ...m, callStatus: message.callStatus ,duration: message.duration }
+                  ? { ...m, callStatus: message.callStatus, duration: message.duration }
                   : m
               );
             }
 
             return [...prev, { ...message, id: message._id }];
-          });          
+          });
           setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
         }
       }
@@ -237,7 +237,7 @@ export const useMessages = (selectedConversation, currentUser) => {
         formData.append("type", "image");
       }
 
-      if(call){
+      if (call) {
         formData.append("type", "call");
         formData.append("callStatus", "ringing");
         formData.append("startedAt", new Date().toISOString());
@@ -245,7 +245,7 @@ export const useMessages = (selectedConversation, currentUser) => {
 
       const res = await messageApi.sendMessage(formData);
 
-      if (res.success) {
+      if (res.success === true) {
         setMessages(prev => [...prev, res.data.message]);
         setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
       }
@@ -256,5 +256,5 @@ export const useMessages = (selectedConversation, currentUser) => {
 
 
 
-  return { messages,setMessages, messagesEndRef, containerRef, messageRefs, fetchMessages, sendMessage };
+  return { messages, setMessages, messagesEndRef, containerRef, messageRefs, fetchMessages, sendMessage };
 };
