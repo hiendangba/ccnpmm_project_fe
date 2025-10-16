@@ -16,24 +16,28 @@ import { CallProvider } from './contexts/CallProvider';
 import { FriendProvider } from './contexts/FriendContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import ChangePasswordPage from './components/auth/ChangePasswordPage';
+import { MessageProvider } from "./contexts/MessageContext";
 
 function AppWrapper({ socket }) {
   const { currentUser } = useAuth();
 
   return (
-    <CallProvider currentUser={currentUser}>
-      <FriendProvider>
-        <Routes>
-          <Route path="/home" element={<HomePage socket={socket} />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/list-member" element={<ListMemberPage />} />
-          <Route path="/personal-page" element={<UserPage socket={socket} />} />
-          <Route path="/friend" element={<FriendPage />} />
-          <Route path="/chat" element={<ChatPage />} />
-          <Route path="/change-password" element={<ChangePasswordPage />} />
-        </Routes>
-      </FriendProvider>
-    </CallProvider>
+    <MessageProvider>
+      <CallProvider currentUser={currentUser}>
+        <FriendProvider>
+          <Routes>
+            <Route path="/home" element={<HomePage socket={socket} />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/list-member" element={<ListMemberPage />} />
+            <Route path="/personal-page" element={<UserPage socket={socket} />} />
+            <Route path="/friend" element={<FriendPage />} />
+            <Route path="/chat" element={<ChatPage />} />
+            <Route path="/change-password" element={<ChangePasswordPage />} />
+          </Routes>
+        </FriendProvider>
+      </CallProvider>
+    </MessageProvider>
+
   );
 }
 

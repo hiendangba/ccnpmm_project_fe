@@ -7,6 +7,7 @@ export default function CallScreen({ localStream, remoteStreams, isGroup = false
       localVideoRef.current.srcObject = localStream;
     }
   }, [localStream]);
+  const uniqueStreams = [...new Map(remoteStreams.map(s => [s.id, s])).values()];
 
   return (
     <div className="fixed inset-0 bg-black flex justify-center items-center z-50">
@@ -17,7 +18,7 @@ export default function CallScreen({ localStream, remoteStreams, isGroup = false
               key={index}
               autoPlay
               playsInline
-              ref={el => { if(el) el.srcObject = stream; }}
+              ref={el => { if (el) el.srcObject = stream; }}
               className="w-full h-full object-cover rounded-lg"
             />
           ))}
@@ -27,7 +28,7 @@ export default function CallScreen({ localStream, remoteStreams, isGroup = false
           <video
             autoPlay
             playsInline
-            ref={el => { if(el) el.srcObject = remoteStreams[0]; }}
+            ref={el => { if (el) el.srcObject = remoteStreams[0]; }}
             className="absolute inset-0 w-full h-full object-cover"
           />
         )
