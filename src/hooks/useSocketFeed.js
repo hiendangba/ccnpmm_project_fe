@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-export default function useSocketFeed({ socket, user, isPersonal, setPosts, commentPost, setCommentPost }) { 
+export default function useSocketFeed({ socket, user, isPersonal, setPosts, commentPost, setCommentPost, removeCommentRecursively }) { 
     const commentPostRef = useRef(null);
 
     useEffect(() => {
@@ -87,10 +87,51 @@ export default function useSocketFeed({ socket, user, isPersonal, setPosts, comm
 
         });
 
+        // KHI XÓA BÌNH LUẬN 
+        socket.on("USER_DELETE_COMMENT", (responseDTO) => {
+            console.log(responseDTO);
+            const deletedComment = responseDTO;
+            if (deletedComment.userId !== user.id){
+                // update bên ngoài
+                setPosts((prevPosts) =>
+                    prevPosts.map((post) => {
+                        if (post.id !== deletedComment.postId) {
+                            return post; // không phải post chứa comment đó
+                        }
+
+                        return {
+                            ...post,
+                            commentCount: post.commentCount - deletedComment.deletedCount,
+                            commentUsers: removeCommentRecursively(
+                                post.commentUsers || [],
+                                deletedComment.commentId
+                            ),
+                        };
+                    })
+                );
+
+                if (commentPostRef.current && commentPostRef.current.id === deletedComment.postId) {
+                    // Update model đang mở 
+                    setCommentPost((prev) => {
+                        if (!prev) return prev;
+                        return {
+                            ...prev,
+                            commentCount: prev.commentCount - deletedComment.deletedCount,
+                            commentUsers: removeCommentRecursively(
+                                prev.commentUsers || [],
+                                deletedComment.commentId
+                            ),
+                        };
+                    });
+                }
+            }
+        })
+
         return () => {
             socket.off("USER_UPLOAD_POST");
             socket.off("USER_LIKE");
             socket.off("USER_COMMENT");
+            socket.off("USER_DELETE_COMMENT");
         };
     }, [socket]);
 

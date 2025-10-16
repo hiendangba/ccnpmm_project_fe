@@ -14,7 +14,8 @@ export default function CommentModel({
     setActiveReplyId,
     CommentSubmit,
     onPost,
-    user
+    user,
+    handleDeleteComment
 }) {
     const [commentContent, setCommentContent] = useState("");
     const [commentImages, setCommentImages] = useState([]);
@@ -80,6 +81,7 @@ export default function CommentModel({
                                 activeReplyId={activeReplyId}
                                 setActiveReplyId={setActiveReplyId}
                                 CommentSubmit={CommentSubmit}
+                                handleDeleteComment={handleDeleteComment}
                             />
                         ))
                     ) : (
