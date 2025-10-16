@@ -11,7 +11,8 @@ import userApi from "../../api/userApi";
 import { useAuth } from "../../contexts/AuthProvider";
 
 export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, address, gd }) {
-  const { currentUser } = useAuth();
+  const { currentUser, updateCurrentUser } = useAuth(); // ✅ Lấy thêm hàm
+
   const formatDate = (date) =>
     date ? new Date(date).toISOString().split("T")[0] : "";
   const navigate = useNavigate();
@@ -66,6 +67,8 @@ export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, ad
             : "",
         };
         setFormData(formattedResponse);
+        // ✅ CẬP NHẬT USER TRONG CONTEXT TOÀN CỤC
+        updateCurrentUser(formattedResponse);
       } else {
         setToast({
           type: "warning",

@@ -21,6 +21,12 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.removeItem("token");
   }, []);
 
+   // ✅ HÀM NÀY THÊM MỚI
+  const updateCurrentUser = (newUser) => {
+    setCurrentUser(newUser);
+    localStorage.setItem("user", JSON.stringify(newUser));
+  };
+
   useEffect(() => {
     if (token && !currentUser) {
       const savedUser = localStorage.getItem("user");
@@ -76,7 +82,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, token, login, logout, loading }}>
+    <AuthContext.Provider value={{ currentUser, token, login, logout, loading, updateCurrentUser }}>
       {children}
     </AuthContext.Provider>
   );
