@@ -30,12 +30,24 @@ export default function UserPage({ socket }) {
 
     useEffect(() => {
         if (location.state?.user) {
-            setUser(location.state.user);
+            const newUser = location.state.user;
+            const storedUser = localStorage.getItem("user");
+            const currentUser = storedUser ? JSON.parse(storedUser) : null;
+
+            // ✅ chỉ cập nhật nếu khác user hiện tại
+            if (!currentUser || currentUser.id !== newUser.id) {
+                setUser(newUser);
+                localStorage.setItem("user", JSON.stringify(newUser));
+            }
         }
     }, [location.state]);
 
     // user có thể cập nhật (avatar, info...)
-    const [user, setUser] = useState(location.state?.user ?? null);
+    const [user, setUser] = useState(() => {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) return JSON.parse(storedUser);
+        return location.state?.user ?? null;
+    });
 
     // guest chỉ để hiển thị, không cần state
     const guest = location.state?.guest ?? null;
@@ -340,6 +352,9 @@ export default function UserPage({ socket }) {
 
                     setOpenUploadAvt(false);
                     setSelectedFileAvt(null);
+
+                    // ✅ reload để tránh ảnh bị cache
+                    window.location.reload();
                 }}
                 user={user}
             />
