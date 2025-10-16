@@ -6,9 +6,10 @@ import { Image as ImageIcon, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import userApi from "../../../api/userApi";
 
-const CommentItem = ({ comment, onOpenViewer, depth = 0, activeReplyId, setActiveReplyId, CommentSubmit }) => {
+
+const CommentItem = ({ comment, onOpenViewer, depth = 0, activeReplyId, setActiveReplyId, CommentSubmit, handleDeleteComment }) => {
     const navigate = useNavigate();
-    const user = JSON.parse(localStorage.getItem("user")) || null; 
+    const user = JSON.parse(localStorage.getItem("user")) || null;
     const isNested = depth > 0;
     const [replyContent, setReplyContent] = useState(""); // nội dung của comment reply
     const [replyImages, setReplyImages] = useState([]);  // hình ảnh của comment reply
@@ -60,12 +61,12 @@ const CommentItem = ({ comment, onOpenViewer, depth = 0, activeReplyId, setActiv
 
     const viewUserPage = async (userId) => {
         // lấy thông tin của user hiện tại
-        const result = await userApi.getUserPage( userId );
-        if (result?.user){
-            if (result.user.id === user.id){
-                navigate("/user-page", { state : { user: user }});
+        const result = await userApi.getUserPage(userId);
+        if (result?.user) {
+            if (result.user.id === user.id) {
+                navigate("/user-page", { state: { user: user } });
             }
-            else{
+            else {
                 navigate("/user-page", { state: { guest: result.user, user: user } });
             }
         }
@@ -114,18 +115,29 @@ const CommentItem = ({ comment, onOpenViewer, depth = 0, activeReplyId, setActiv
                     </div>
 
 
-                    {/* Nút trả lời + thời gian */}
-                    <div className="flex items-center justify-between mt-2">
-                        <p className="text-xs text-gray-500">
-                            {new Date(comment.createdAt).toLocaleString()}
-                        </p>
-                        <button
-                            onClick={handleReplyClick}
-                            className="text-xs text-blue-500 hover:underline cursor-pointer"
-                        >
-                            Trả lời
-                        </button>
+                    {/* Nút trả lời + Nút xóa + thời gian */}
+                    <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+                        {/* Thời gian */}
+                        <p>{new Date(comment.createdAt).toLocaleString()}</p>
+
+                        {/* Nhóm nút hành động */}
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={handleReplyClick}
+                                className="text-blue-500 hover:underline"
+                            >
+                                Trả lời
+                            </button>
+                            <span className="text-gray-400">•</span>
+                            <button
+                                onClick={() => handleDeleteComment(comment._id || comment.id)}
+                                className="text-red-500 hover:underline"
+                            >
+                                Xóa
+                            </button>
+                        </div>
                     </div>
+
                     {/* Form trả lời */}
                     {isReplying && (
                         <div className="mt-3 border-t pt-3">
@@ -240,17 +252,18 @@ const CommentItem = ({ comment, onOpenViewer, depth = 0, activeReplyId, setActiv
             {/* Hiển thị comment con */}
             {comment.childs && comment.childs.length > 0 && (
                 <div className="mt-3 space-y-3">
-                        {comment.childs.map((childComment) => (
-                            <CommentItem
-                                key={childComment.id}
-                                comment={childComment}
-                                onOpenViewer={onOpenViewer}
-                                depth={depth + 1}
-                                activeReplyId={activeReplyId}
-                                setActiveReplyId={setActiveReplyId}
-                                CommentSubmit={CommentSubmit}
-                            />
-                        ))}
+                    {comment.childs.map((childComment) => (
+                        <CommentItem
+                            key={childComment.id}
+                            comment={childComment}
+                            onOpenViewer={onOpenViewer}
+                            depth={depth + 1}
+                            activeReplyId={activeReplyId}
+                            setActiveReplyId={setActiveReplyId}
+                            CommentSubmit={CommentSubmit}
+                            handleDeleteComment={handleDeleteComment}
+                        />
+                    ))}
                 </div>
             )}
         </div>

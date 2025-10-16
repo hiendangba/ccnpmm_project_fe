@@ -23,6 +23,9 @@ const postsApi = {
                 "Content-Type": "multipart/form-data"
             }
         })
+    },
+    deleteCommnet (postId) {
+        return axiosClient.delete(`/post/deleteComment/${postId}`)
     }
 }
 

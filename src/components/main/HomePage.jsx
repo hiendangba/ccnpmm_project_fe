@@ -10,7 +10,6 @@ import { useAuth } from "../../contexts/AuthProvider";
 import { 
   Users, 
   Home, 
-  User, 
   UserCircle, 
   List, 
   Heart, 

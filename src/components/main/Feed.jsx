@@ -8,10 +8,9 @@ import ShareModal from "./post/ShareModal";
 
 import usePostsFeed from "../../hooks/usePostsFeed";
 import useSocketFeed from "../../hooks/useSocketFeed";
-import { set } from "lodash";
+import Toast from "../common/Toast";
 
-export default function Feed({ user, displayUser, guest,  socket, postsApi, limit = 5, onOpenViewer, isPersonal }) {
-    const [toast, setToast] = useState(null);
+export default function Feed({ user, displayUser, guest, socket, postsApi, limit = 5, onOpenViewer, isPersonal }) {
 
     // modal Like
     const [showLikeModal, setShowLikeModal] = useState(false);
@@ -27,6 +26,7 @@ export default function Feed({ user, displayUser, guest,  socket, postsApi, limi
     const [sharePost, setSharePost] = useState(null);
 
     const [modalType, setModalType] = useState("like");
+    const [toast, setToast] = useState(null);
 
     // ----- dùng hook quản lý posts -----
     const { posts, setPosts, isLoading, hasMore, fetchNext, sentinelRef } = usePostsFeed({
@@ -37,6 +37,17 @@ export default function Feed({ user, displayUser, guest,  socket, postsApi, limi
         displayUser
     });
 
+    // ✅ Hàm đệ quy xóa comment (cả comment cha và con)
+    const removeCommentRecursively = (comments, idToDelete) => {
+        return comments
+            .filter((c) => (c.id ?? c._id) !== idToDelete)
+            .map((c) => ({
+                ...c,
+                childs: c.childs
+                    ? removeCommentRecursively(c.childs, idToDelete)
+                    : [],
+            }));
+    };
 
     // ----- dùng hook socket -----
     const { commentPostRef, addCommentToTree } = useSocketFeed({
@@ -46,6 +57,7 @@ export default function Feed({ user, displayUser, guest,  socket, postsApi, limi
         setPosts,
         commentPost,
         setCommentPost,
+        removeCommentRecursively
     });
 
 
@@ -91,7 +103,7 @@ export default function Feed({ user, displayUser, guest,  socket, postsApi, limi
         }
     };
 
-    const handleOpenLikeModal = (post,type) => {
+    const handleOpenLikeModal = (post, type) => {
         setSelectedPost(post);
         setModalType(type);
         setShowLikeModal(true);
@@ -198,21 +210,71 @@ export default function Feed({ user, displayUser, guest,  socket, postsApi, limi
         await CommentSubmit(commentContent, commentImages);
     };
 
-    const handleShareSubmit = async ( payload ) => {
-         try {
-            const result = await postsApi.sharePost( payload );
+    const handleShareSubmit = async (payload) => {
+        try {
+            const result = await postsApi.sharePost(payload);
             console.log(result.sharePostResponseDTO);
         } catch (err) {
             const message = err.response?.data?.message || err.message || "Thất bại khi kết nối với máy chủ.";
             setToast({ message, type: "error" });
         }
     }
-    
+
+    const handleDeleteComment = async (commentId) => {
+        console.log("Xóa bình luận")
+        try {
+            const response = await postsApi.deleteCommnet(commentId);
+            const deleteCommentDTO = response.responseDTO;
+
+            if (deleteCommentDTO) {
+                console.log("POST_ID: ", deleteCommentDTO.postId);
+
+                // update bên ngoài
+                setPosts((prevPosts) =>
+                    prevPosts.map((post) => {
+                        if (post.id !== deleteCommentDTO.postId) {
+                            return post; // không phải post chứa comment đó
+                        }
+
+                        return {
+                            ...post,
+                            commentCount: post.commentCount - deleteCommentDTO.deletedCount,
+                            commentUsers: removeCommentRecursively(
+                                post.commentUsers || [],
+                                deleteCommentDTO.commentId
+                            ),
+                        };
+                    })
+                );
+
+                // cập nhật comment ở trong modal
+                // Update model đang mở 
+                setCommentPost((prev) => {
+                    if (!prev) return prev;
+                    return {
+                        ...prev,
+                        commentCount: prev.commentCount - deleteCommentDTO.deletedCount,
+                        commentUsers: removeCommentRecursively(
+                            prev.commentUsers || [],
+                            deleteCommentDTO.commentId
+                        ),
+                    };
+                });
+                setToast({ message: "Xóa bình luận thành công", type: "success" });
+            }
+        } catch (err) {
+            console.error("❌ Lỗi khi xóa bình luận:", err);
+            const messageRes =
+                err.response?.data?.message || "Có lỗi xảy ra khi xóa bình luận";
+            setToast({ message: messageRes, type: "error" });
+        }
+    };
+
 
     return (
         <div className="flex flex-col w-2/3 gap-4">
 
-            { !guest && <PostComposer user={user} onPost={handlePost} onOpenViewer={onOpenViewer} /> }
+            {!guest && <PostComposer user={user} onPost={handlePost} onOpenViewer={onOpenViewer} />}
 
             {posts.map((post) => (
                 <PostItem
@@ -247,9 +309,19 @@ export default function Feed({ user, displayUser, guest,  socket, postsApi, limi
                 CommentSubmit={CommentSubmit}
                 onPost={handleCommentSubmit}
                 user={user}
+                handleDeleteComment={handleDeleteComment}
             />
 
             <ShareModal showShareModal={showShareModal} sharePost={sharePost} handleCloseShareModal={handleCloseShareModal} user={user} onShare={handleShareSubmit} />
+
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                    duration={3000}
+                />
+            )}
 
         </div>
     );

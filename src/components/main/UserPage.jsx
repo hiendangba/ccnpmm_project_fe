@@ -8,7 +8,8 @@ import CoverPhoto from "../../assets/cover_photo.png";
 import postsApi from "../../api/postsApi";
 import Feed from "./Feed";
 import ImageViewer from "./ImageViewer";
-import { Eye, Image as ImageIcon } from "lucide-react"
+import { Eye, Image as ImageIcon } from "lucide-react";
+import Toast from "../common/Toast";
 
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -18,8 +19,9 @@ import {
     PopoverTrigger,
 } from "../common/popover";
 import UploadAvatarDialog from "./UploadAvatarDialog";
-import friendApi from "../../api/friendApi";
 import userApi from "../../api/userApi";
+import useFriendActions from "../../hooks/useFriendActions";
+
 
 
 export default function UserPage({ socket }) {
@@ -49,7 +51,18 @@ export default function UserPage({ socket }) {
 
     const displayUser = guest && user ? guest : user;
     const avatarSrc = displayUser?.avatarUrl ?? AltAvatar;
+    const [toast, setToast] = useState(null);
 
+    const {
+        typeFriend,
+        requestId,
+        friends,
+        handleSendFriend,
+        handleRejectFriend,
+        handleAcceptFriend,
+        handleRemoveFriend,
+        handleDeclineFriend,
+    } = useFriendActions(user, displayUser, setToast);
 
     const [viewerOpen, setViewerOpen] = useState(false);
     const [viewerImages, setViewerImages] = useState([]);
@@ -59,9 +72,6 @@ export default function UserPage({ socket }) {
     const [selectedFileAvt, setSelectedFileAvt] = useState(null);
     const fileAvtInputRef = useRef(null);
     const limit = 5;
-    const [friends, setFriends] = useState([]);
-
-
 
     const openViewer = (images, startIndex = 0) => {
         if (!images || images.length === 0) return;
@@ -80,33 +90,14 @@ export default function UserPage({ socket }) {
     const showPrev = () => setViewerIndex((i) => (i - 1 + viewerImages.length) % viewerImages.length);
     const showNext = () => setViewerIndex((i) => (i + 1) % viewerImages.length);
 
-    const loadFriends = async () => {
-        try {
-            const result = await friendApi.getFriend(displayUser.id);
-            if (result?.data?.listFriend) {
-                setFriends(result.data.listFriend);
-            }
-        }
-        catch (err) {
-            console.error("Lỗi khi tải danh sách bạn bè:", err);
-        }
-    }
-
-    // 👉 gọi API khi vừa vào trang
-    useEffect(() => {
-        if (displayUser?.id){
-            loadFriends();
-        }
-    }, [displayUser?.id]);
-
-    const viewUserPage =  async (userId)=> {
+    const viewUserPage = async (userId) => {
         // lấy thông tin của user hiện tại
-        const result = await userApi.getUserPage( userId );
-        if (result?.user){
-            if (result.user.id === user.id){
-                navigate("/user-page", { state : { user: user }});
+        const result = await userApi.getUserPage(userId);
+        if (result?.user) {
+            if (result.user.id === user.id) {
+                navigate("/user-page", { state: { user: user } });
             }
-            else{
+            else {
                 navigate("/user-page", { state: { guest: result.user, user: user } });
             }
         }
@@ -175,28 +166,99 @@ export default function UserPage({ socket }) {
                                 <h1 className="text-3xl font-bold leading-tight">{displayUser?.name}</h1>
                                 <p className="text-gray-500 mt-1">{displayUser?.bio ?? "Chưa cập nhật"}</p>
                             </div>
+                            {/* Nếu user chính chưa kết bạn với người này thì hiện nút kết bạn */}
+                            {user?.id !== displayUser?.id && (
+                                <div className="flex items-center gap-2 mt-4 sm:mt-0" >
+                                    {typeFriend === null && (
+                                        <Button
+                                            variant="rounded"
+                                            className="px-4 border border-gray-300"
+                                            onClick={() => handleSendFriend()}
+                                        >
+                                            <span className="inline-flex items-center gap-2">
+                                                <span>Kết bạn</span>
+                                            </span>
+                                        </Button>
+                                    )}
+                                    {typeFriend === "friend" && (
+                                        <Button
+                                            variant="rounded"
+                                            className="px-4 border border-gray-300"
+                                            onClick={() => handleRemoveFriend()}
+                                        >
+                                            <span className="inline-flex items-center gap-2">
+                                                <span>Xóa kết bạn</span>
+                                            </span>
+                                        </Button>
+                                    )}
+                                    {typeFriend === "received" && (
+                                        <div className="flex gap-3">
+                                            {/* Nút Chấp nhận */}
+                                            <Button
+                                                variant="rounded"
+                                                className="px-4 border border-gray-300 bg-green-400 hover:bg-green-500 !text-black"
+                                                onClick={() => handleAcceptFriend()}
+                                            >
+                                                <span className="inline-flex items-center gap-2">
+                                                    <span>Chấp nhận lời mời</span>
+                                                </span>
+                                            </Button>
+
+                                            {/* Nút Từ chối */}
+                                            <Button
+                                                variant="rounded"
+                                                className="px-4 border border-gray-300 bg-red-400 hover:bg-red-500 !text-black"
+                                                onClick={() => handleRejectFriend()}
+                                            >
+                                                <span className="inline-flex items-center gap-2">
+                                                    <span>Từ chối lời mời</span>
+                                                </span>
+                                            </Button>
+                                        </div>
+                                    )}
+                                    {typeFriend === "sent" && (
+                                        <Button
+                                            variant="rounded"
+                                            className="px-4 border border-gray-300"
+                                            onClick={() => handleDeclineFriend()}
+                                        >
+                                            <span className="inline-flex items-center gap-2">
+                                                <span>Hủy mời kết bạn</span>
+                                            </span>
+                                        </Button>
+                                    )}
+                                    {toast && (
+                                        <Toast
+                                            message={toast.message}
+                                            type={toast.type}
+                                            onClose={() => setToast(null)}
+                                            duration={3000}
+                                        />
+                                    )}
+                                </div>
+                            )}
                             {/* Nếu không có guest (chính chủ) thì mới hiện nút */}
                             {!guest && (
-                              <div className="flex items-center gap-2 mt-4 sm:mt-0">
-                                <Button 
-                                  variant="rounded"
-                                  className="px-4 border border-gray-300"
-                                >
-                                  <span className="inline-flex items-center gap-2">
-                                    <PlusCircle className="w-4 h-4" />
-                                    <span>Thêm vào tin</span>
-                                  </span>
-                                </Button>
-                                <Button 
-                                  variant="rounded"
-                                  className="border border-gray-300"
-                                >
-                                  <span className="inline-flex items-center gap-2">
-                                    <Pencil className="w-4 h-4" />
-                                    <span>Chỉnh sửa trang cá nhân</span>
-                                  </span>
-                                </Button>
-                              </div>
+                                <div className="flex items-center gap-2 mt-4 sm:mt-0">
+                                    <Button
+                                        variant="rounded"
+                                        className="px-4 border border-gray-300"
+                                    >
+                                        <span className="inline-flex items-center gap-2">
+                                            <PlusCircle className="w-4 h-4" />
+                                            <span>Thêm vào tin</span>
+                                        </span>
+                                    </Button>
+                                    <Button
+                                        variant="rounded"
+                                        className="border border-gray-300"
+                                    >
+                                        <span className="inline-flex items-center gap-2">
+                                            <Pencil className="w-4 h-4" />
+                                            <span>Chỉnh sửa trang cá nhân</span>
+                                        </span>
+                                    </Button>
+                                </div>
                             )}
                         </div>
 
@@ -244,7 +306,7 @@ export default function UserPage({ socket }) {
                                     <div
                                         key={friend.id}
                                         className="flex items-center gap-3 mb-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition"
-                                        onClick={()=> viewUserPage(friend.userId)}
+                                        onClick={() => viewUserPage(friend.userId)}
                                     >
                                         <img
                                             src={friend.avatar || AltAvatar}
