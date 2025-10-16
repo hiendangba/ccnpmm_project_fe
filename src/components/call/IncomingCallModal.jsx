@@ -51,7 +51,7 @@ export default function IncomingCallModal({
 
         <div className="flex justify-end space-x-3">
           <button
-            onClick={onDecline}
+            onClick={() => { onDecline(selectedConversation) }}
             className="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400"
           >
             Từ chối

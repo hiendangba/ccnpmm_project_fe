@@ -21,12 +21,6 @@ export const formatMessageTime = (timestamp) => {
   }
 };
 
-/**
- * Quy tắc hiển thị thời gian giống Messenger
- * @param messages - danh sách tin nhắn
- * @param idx - vị trí tin nhắn hiện tại
- * @returns boolean
- */
 export const shouldShowTime = (messages, idx) => {
   if (idx === 0) return true; // tin nhắn đầu tiên luôn hiển thị thời gian
 

@@ -36,7 +36,6 @@ export default function OutgoingCallModal({ conversation, currentUser, onCancel 
           variant="rounded"
           className="border border-gray-300"
           onClick={() => onCancel(conversation.conversationId)} // phải bọc arrow function
-
         />
       </div>
     </div>

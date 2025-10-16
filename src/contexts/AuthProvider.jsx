@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback } from "rea
 import authApi from "../api/authApi";
 import userApi from "../api/userApi";
 import { setTokenGetter } from "../api/axiosClient";
+import Cookies from "js-cookie";
 
 const AuthContext = createContext();
 
@@ -62,7 +63,12 @@ export const AuthProvider = ({ children }) => {
       const user = await userApi.getProfile();
       setCurrentUser(user);
       localStorage.setItem("user", JSON.stringify(user));
-
+      Cookies.set("user", JSON.stringify({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      }), { path: "/" });
       return user;
     } catch (error) {
       throw error; // Cho UI xử lý lỗi (ví dụ hiển thị "Sai tài khoản/mật khẩu")

@@ -53,7 +53,6 @@ export default function FriendPage() {
   const handleAction = async (action, user, context = "users") => {
     let res;
     let requestId;
-
     setIsUpdating(true);
     try {
       switch (action) {

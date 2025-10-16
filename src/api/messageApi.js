@@ -22,6 +22,16 @@ const messageApi = {
   },
   getMessageGroup(data){
     return axiosClient.get("/message/group", {params: data});
+  },
+
+  updateCall(id, data) {
+    return axiosClient.patch(`/message/${id}/call`, data);
+  },
+
+  createGroup(formData) {
+    return axiosClient.post("/message/createGroup", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
   }
 };
 

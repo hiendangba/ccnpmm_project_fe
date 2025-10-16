@@ -24,6 +24,10 @@ export default function LoginPage() {
   const handleLoginClick = async () => {
     try {
       const user = await login({ mssv, password, remember });
+      if (user.role === 'admin') {
+        window.location.href = "http://localhost:3002";
+        return;
+      }
       if (!user.age && !user.gender && !user.bio && !user.address) {
         navigate("/profile", { state: { user } });
       } else {
