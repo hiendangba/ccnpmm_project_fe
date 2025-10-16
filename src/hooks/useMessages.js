@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import messageApi from "../api/messageApi";
 import {initSocket ,joinRoom, leaveRoom, onEvent } from "../socket/socket";
+import { useMessageContext } from "../contexts/MessageContext";
 
 export const useMessages = (selectedConversation, currentUser) => {
-  const [messages, setMessages] = useState([]);
+  const { messages, setMessages } = useMessageContext();
   const messagesEndRef = useRef(null);
   const containerRef = useRef(null);
   const messageRefs = useRef({});
@@ -34,6 +35,73 @@ export const useMessages = (selectedConversation, currentUser) => {
             prev.map(m => m.id === message.id ? { ...m, ...message } : m)
         );
         }
+    });
+
+
+    onEvent("receiveCall", (message) => {
+        if (message.senderId !== currentUser.id && message.conversationId === selectedConversation.conversationId) {
+            setMessages(prev => [...prev, message]);
+            setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+        }
+    });
+
+
+    onEvent("updateCallStatus", (message) => {
+      if(message.callStatus === "canceled"){
+        if(message.senderId !== currentUser.id && message.conversationId === selectedConversation.conversationId){
+          setMessages(prev => {
+            const exists = prev.some(m => m.id === message._id || m._id === message._id);
+
+            if (exists) {
+              return prev.map(m =>
+                m.id === message._id || m._id === message._id
+                  ? { ...m, callStatus: message.callStatus ,duration: message.duration }
+                  : m
+              );
+            }
+
+            return [...prev, { ...message, id: message._id }];
+          });          
+          setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+        }
+      }
+      else{
+        const length = message.rejectedUsers ? message.rejectedUsers.length : 0;
+        
+        if(message.rejectedUsers[length-1] !== currentUser.id && message.conversationId === selectedConversation.conversationId){
+          setMessages(prev => {
+            const exists = prev.some(m => m.id === message._id || m._id === message._id);
+
+            if (exists) {
+              return prev.map(m =>
+                m.id === message._id || m._id === message._id
+                  ? { ...m, callStatus: message.callStatus,duration: message.duration }
+                  : m
+              );
+            }
+
+            return [...prev, { ...message, id: message._id }];
+          });          
+          setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+        }
+      } 
+      if(message.callStatus === "ended"){
+        if(message.senderId !== currentUser.id && message.conversationId === selectedConversation.conversationId){
+          setMessages(prev => {
+            const exists = prev.some(m => m.id === message._id || m._id === message._id);
+            if (exists) {
+              return prev.map(m =>
+                m.id === message._id || m._id === message._id
+                  ? { ...m, callStatus: message.callStatus ,duration: message.duration }
+                  : m
+              );
+            }
+
+            return [...prev, { ...message, id: message._id }];
+          });          
+          setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+        }
+      }
     });
 
     return () => leaveRoom(selectedConversation.conversationId);
@@ -151,8 +219,8 @@ export const useMessages = (selectedConversation, currentUser) => {
   }, [messages, currentUser.id]);
 
   // send message
-  const sendMessage = async (content, attachments) => {
-    if ((!content?.trim() && (!attachments || attachments.length === 0)) || !selectedConversation) return;
+  const sendMessage = async (content, attachments, call) => {
+    if ((!content?.trim() && (!attachments || attachments.length === 0)) && (!call) || !selectedConversation) return;
 
     try {
       const formData = new FormData();
@@ -169,6 +237,12 @@ export const useMessages = (selectedConversation, currentUser) => {
         formData.append("type", "image");
       }
 
+      if(call){
+        formData.append("type", "call");
+        formData.append("callStatus", "ringing");
+        formData.append("startedAt", new Date().toISOString());
+      }
+
       const res = await messageApi.sendMessage(formData);
 
       if (res.success) {
@@ -182,5 +256,5 @@ export const useMessages = (selectedConversation, currentUser) => {
 
 
 
-  return { messages, messagesEndRef, containerRef, messageRefs, fetchMessages, sendMessage };
+  return { messages,setMessages, messagesEndRef, containerRef, messageRefs, fetchMessages, sendMessage };
 };

@@ -5,6 +5,7 @@ import CallScreen from "../components/call/CallScreen";
 import { initSocket, onEvent, joinRoom } from "../socket/socket";
 import messageApi from "../api/messageApi";
 import { getFakeMediaStream } from "../utils/fakeMedia";
+import { useMessageContext } from "./MessageContext";
 
 const CallContext = createContext();
 
@@ -17,249 +18,380 @@ export const CallProvider = ({ children, currentUser, }) => {
   const [activeCall, setActiveCall] = useState(null);
   const pcRef = useRef(null);
   const socketRef = useRef(null);
+  const { setMessages } = useMessageContext();
+  const [rejectedUsers, setRejectedUsers] = useState([]);
+  const rejectedUsersRef = useRef([]);
+  const [acceptedUsers, setAcceptedUsers] = useState([]);
+  const acceptedUsersRef = useRef([]);
 
-    useEffect(() => {
-        const socket = initSocket();
-        socketRef.current = socket;
+  useEffect(() => {
+    acceptedUsersRef.current = acceptedUsers;
+  }, [acceptedUsers]);
+  useEffect(() => {
+    const socket = initSocket();
+    socketRef.current = socket;
 
-        const fetchAndJoinRooms = async () => {
-            const listConv = await messageApi.getConversation();
-            if (!listConv.success) return;
-            listConv.data.forEach(conv => joinRoom(conv.conversationId));
-        };
+    const fetchAndJoinRooms = async () => {
+      const listConv = await messageApi.getConversation();
+      if (!listConv.success) return;
+      listConv.data.forEach(conv => joinRoom(conv.conversationId));
+    };
 
-        fetchAndJoinRooms();
+    fetchAndJoinRooms();
 
-        onEvent("callRequest", (data) => {
-            if (data.from !== currentUser.id) {
-                setIncomingCall(data);
-            }
-        });
+    onEvent("callRequest", (data) => {
+      if (data.from !== currentUser.id) {
+        setIncomingCall(data);
+        setRejectedUsers([])
+      }
+    });
 
-        onEvent("cancelCall", (data) => {
-            if (data.from !== currentUser.id) {
-                setIncomingCall(null); // đóng modal cuộc gọi đến
-            }
-        });
+    onEvent("cancelCall", (data) => {
+      if (data.from !== currentUser.id) {
+        setIncomingCall(null);
+        setOutgoingCall(null);
+      }
+    });
 
-        onEvent("call-accepted", (data) => {
-            if(data.from !== currentUser.id)
-            {
-                handleCallAccepted(data.conversation)
-                setOutgoingCall(null); // đóng modal cuộc gọi đến
-            }
-        });
+    onEvent("declineCall", (data) => {
+      const { conversation, from, rejectedUsers: rejectedUser } = data;
+      setAcceptedUsers(prev => prev.filter(u => u.id !== data.from));
+      const exists = rejectedUsersRef.current.find((u) => u.id === rejectedUser.id);
+      if (!exists) {
+        rejectedUsersRef.current.push(rejectedUser);
+        setRejectedUsers([...rejectedUsersRef.current]); // cập nhật UI
+      }
 
-        onEvent("call-offer", (data) => {
-            if(data.from !== currentUser.id)
-            {
-                handleIncomingOffer(data.offer,data.conversation)
-            }
-        });
+      const totalMembers = conversation.members?.length || 0;
+      const totalRejected = rejectedUsersRef.current.length;
+      
+      // 1️⃣ Cuộc gọi riêng
+      const isPrivateCall = totalMembers === 2;
+      if (isPrivateCall) {
+        rejectedUsersRef.current = [];
+        setOutgoingCall(null);
+        return;
+      }
 
-        onEvent("call-answer", (data) => {
-            if (data.from !== currentUser.id) {
-                handleAnswer(data.answer, data.conversationId);
-            }
-        });
+      if (totalRejected >= totalMembers - 1) {
+        rejectedUsersRef.current = [];
+        setOutgoingCall(null);
+      }
+    });
 
-        // Khi nhận ICE candidate từ peer
-        onEvent("ice-candidate", (data) => {
-            if (data.from !== currentUser.id) {
-                handleCandidate(data.candidate, data.conversationId); 
-            }
-        });
 
-        onEvent("call-ended", (data) => {
-          if(data.from !== currentUser.id){
-            handleEndCall(data.conversationId); 
+    onEvent("call-accepted", (data) => {
+      if (data.from !== currentUser.id && !rejectedUsersRef.current.find(u => u.id === currentUser.id)) {
+        setAcceptedUsers(prev => {
+          const newUsers = [{ id: currentUser.id }]; // luôn thêm currentUser
+          if (!prev.find(u => u.id === data.from)) {
+            newUsers.push({ id: data.from });
           }
-        })
+          return [...prev, ...newUsers];
+        });
+        handleCallAccepted(data.conversation)
+        setOutgoingCall(null); // đóng modal cuộc gọi đến
+      }
+    });
+    
 
-        return () => {
-            socketRef.current = null;
-        };
-    }, [currentUser.id]);
+    onEvent("call-offer", (data) => {
+      if (data.from !== currentUser.id && acceptedUsersRef.current.find(u => u.id === data.from )) {
+        console.log("handleIncoming Offer")
+        handleIncomingOffer(data.offer, data.conversation)
+        console.log("finish handleIncoming Offer")
+      }
+    });
 
-    const handleCallAccepted = async (conversation) => {
-        try {
-            // 1. Lấy local media
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            setLocalStream(stream);
-            setIsCalling(true);
-            // 2. Tạo peer connection
-            const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
-            // 3. Thêm local tracks
-            stream.getTracks().forEach((track) => pc.addTrack(track, stream));
-            // 4. Nhận remote track
-            pc.ontrack = (event) => {
-            setRemoteStreams((prev) => [...prev, event.streams[0]]);
-            };
+    onEvent("call-answer", (data) => {
+      if (data.from !== currentUser.id && acceptedUsersRef.current.find(u => u.id === data.from )) {
+        handleAnswer(data.answer, data.conversationId);
+      }
+    });
 
-            pcRef.current = pc;
+    onEvent("ice-candidate", (data) => {
+      if (data.from !== currentUser.id && acceptedUsersRef.current.find(u => u.id === data.from )) {
+        console.log("Received ice-candidate:", data);
+        handleCandidate(data.candidate, data.conversationId);
+      }
+    });
 
-            // 5. Tạo offer
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
+    onEvent("call-ended", (data) => {
+      if (data.from !== currentUser.id) {
+        console.log("Call ended by other user");
+        handleEndCall(data.conversationId);
+      }
+    })
 
-            // 6. Gửi offer qua socket
-            socketRef.current?.emit("call-offer", {
-            conversation,
-            offer,
-            from: currentUser.id
-            });
-
-        } catch (err) {
-            console.error("Không thể tạo offer:", err);
-        }
+    return () => {
+      socketRef.current = null;
     };
+  }, [currentUser.id]);
 
-    const handleIncomingOffer = async (offer, conversation) => {
-        try {
-            // 1. Lấy local media
-            const stream = await getFakeMediaStream();
-           
-            setLocalStream(stream);
-            setActiveCall(conversation)
-            // 2. Tạo peer connection
-            const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+  const handleCallAccepted = async (conversation) => {
+    try {
+      // 1. Lấy local media
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      setLocalStream(stream);
+      setIsCalling(true);
+      // 2. Tạo peer connection
+      const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+      // 3. Thêm local tracks
+      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+      // 4. Nhận remote track
+      pc.ontrack = (event) => {
+        setRemoteStreams((prev) => [...prev, event.streams[0]]);
+      };
 
-            // 3. Thêm local tracks
-            stream.getTracks().forEach(track => pc.addTrack(track, stream));
-            pc.onicecandidate = (event) => {
-            if (event.candidate) {
-                socketRef.current?.emit("ice-candidate", {
-                conversationId: conversation.conversationId,
-                candidate: event.candidate,
-                from: currentUser.id
-                });
-            }
-            };
-            // 4. Nhận remote track
-            pc.ontrack = (event) => setRemoteStreams(prev => [...prev, event.streams[0]]);
+      pcRef.current = pc;
 
-            pcRef.current = pc;
+      // 5. Tạo offer
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
 
-            // 5. Đặt remote description từ offer
-            await pc.setRemoteDescription(new RTCSessionDescription(offer));
+      // 6. Gửi offer qua socket
+      socketRef.current?.emit("call-offer", {
+        conversation,
+        offer,
+        from: currentUser.id
+      });
 
-            // 6. Tạo answer
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-
-            // 7. Gửi answer về cho người gọi
-            socketRef.current?.emit("call-answer", {
-                conversationId: conversation.conversationId,
-                answer,
-                from: currentUser.id
-            });
-            setIsCalling(true);
-
-        } catch (err) {
-            console.error("Không thể xử lý offer:", err);
-        }
-    };
-
-    const handleAnswer = async (answer, conversationId) => {
-        try {
-            if (!pcRef.current) return;
-            await pcRef.current.setRemoteDescription(new RTCSessionDescription(answer));
-        } catch (err) {
-            console.error("Không thể xử lý answer:", err);
-        }
-    };
-
-    const handleCandidate = async (candidate, conversationId) => {
-        try {
-            if (!pcRef.current) return;
-            await pcRef.current.addIceCandidate(new RTCIceCandidate(candidate));
-        } catch (err) {
-            console.error("Không thể thêm ICE candidate:", err);
-        }
-    };
-
-    const handleEndCall = async (conversationId) =>{
-      console.log(123123)
-      // 1. Dừng tất cả track local
-      localStream?.getTracks().forEach(track => track.stop());
-
-      // 2. Đóng peer connection
-      pcRef.current?.close();
-      pcRef.current = null;
-
-      // 3. Xóa state liên quan
-      setLocalStream(null);
-      setRemoteStreams([]);
-      setIsCalling(false);
-      setActiveCall(null);
-      setIncomingCall(null);
-      setOutgoingCall(null);
-
+    } catch (err) {
+      console.error("Không thể tạo offer:", err);
     }
+  };
 
+  const handleIncomingOffer = async (offer, conversation) => {
+    try {
+      // 1. Lấy local media
+      const stream = await getFakeMediaStream();
 
-  // Start call (voice/video)
-  const startCall = async (type = "video", conversation) => {
-    setOutgoingCall({ type, conversation });
+      setLocalStream(stream);
+      setActiveCall(conversation)
+      // 2. Tạo peer connection
+      const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+
+      // 3. Thêm local tracks
+      stream.getTracks().forEach(track => pc.addTrack(track, stream));
+      pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          socketRef.current?.emit("ice-candidate", {
+            conversationId: conversation.conversationId,
+            candidate: event.candidate,
+            from: currentUser.id
+          });
+        }
+      };
+      // 4. Nhận remote track
+      pc.ontrack = (event) => setRemoteStreams(prev => [...prev, event.streams[0]]);
+
+      pcRef.current = pc;
+
+      // 5. Đặt remote description từ offer
+      await pc.setRemoteDescription(new RTCSessionDescription(offer));
+
+      // 6. Tạo answer
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+
+      // 7. Gửi answer về cho người gọi
+      socketRef.current?.emit("call-answer", {
+        conversationId: conversation.conversationId,
+        answer,
+        from: currentUser.id
+      });
+      setIsCalling(true);
+
+    } catch (err) {
+      console.error("Không thể xử lý offer:", err);
+    }
+  };
+
+  const handleAnswer = async (answer, conversationId) => {
+    try {
+      if (!pcRef.current) return;
+      await pcRef.current.setRemoteDescription(new RTCSessionDescription(answer));
+    } catch (err) {
+      console.error("Không thể xử lý answer:", err);
+    }
+  };
+
+  const handleCandidate = async (candidate, conversationId) => {
+    try {
+      if (!pcRef.current) return;
+      await pcRef.current.addIceCandidate(new RTCIceCandidate(candidate));
+    } catch (err) {
+      console.error("Không thể thêm ICE candidate:", err);
+    }
+  };
+
+  const handleEndCall = async (conversationId) => {
+    // 1. Dừng tất cả track local
+    localStream?.getTracks().forEach(track => track.stop());
+
+    // 2. Đóng peer connection
+    pcRef.current?.close();
+    pcRef.current = null;
+
+    setLocalStream(null);
+    setRemoteStreams([]);
+    setIsCalling(false);
+    setActiveCall(null);
+    setIncomingCall(null);
+    setOutgoingCall(null);
+
+  }
+
+  const startCall = async (conversation, user) => {
+    setOutgoingCall({conversation});
+    setRejectedUsers([])
     setActiveCall(conversation);
     socketRef.current?.emit("callRequest", {
       conversation,
       from: currentUser.id,
-      type,
+      user: user,
     });
   };
 
   // Accept call
   const acceptCall = async () => {
     if (!incomingCall) return;
-
+    
     try {
+      socketRef.current?.emit("call-accepted", {
+        conversation: incomingCall.conversation,
+        from: currentUser.id
+      });
+      setAcceptedUsers(prev => {
+          const newUsers = [];
+          if (!prev.find(u => u.id === currentUser.id)) {
+              newUsers.push({ id: currentUser.id });
+          }
 
-        socketRef.current?.emit("call-accepted", {
-            conversation: incomingCall.conversation,
-            from: currentUser.id
-        });
-        setIncomingCall(null);
+          if (incomingCall && !prev.find(u => u.id === incomingCall.from)) {
+              newUsers.push({ id: incomingCall.from });
+          }
+          return [...prev, ...newUsers];
+      });
+      await messageApi.updateCall(
+        incomingCall.conversation.conversationId,
+        { callStatus: "ongoing" }  // <--- cập nhật trạng thái cuộc gọi
+      );
+      setIncomingCall(null);
     } catch (err) {
       console.error("Không thể truy cập webcam/microphone:", err);
     }
   };
 
   // Decline call
-  const declineCall = () => {
+  const declineCall = async(conversation) => {
     setIncomingCall(null);
+    socketRef.current?.emit("declineCall", {
+      conversation: conversation,
+      from: currentUser.id,
+      rejectedUsers: currentUser,
+    });
+
+    const messageResponse = await messageApi.updateCall(
+      conversation.conversationId,
+      { 
+        callStatus: "rejected",
+      }
+    );
+    setMessages(prev => {
+      const newMsg = messageResponse.data.message;
+      const exists = prev.some(m => m.id === newMsg._id || m._id === newMsg._id);
+      if (exists) {
+        const updated = prev.map(m =>
+          (m.id === newMsg._id || m._id === newMsg._id)
+            ? { ...m, callStatus: "rejected" }
+            : m
+        );
+        return updated;
+      }
+      return prev;
+    });
   };
 
   // Cancel outgoing call
-    const cancelCall = (conversationId) => {
-        setOutgoingCall(null);
-        socketRef.current?.emit("cancelCall", {
-            conversationId,
-            from: currentUser.id
-        });
-    };
+  const cancelCall = async(conversationId) => {
+    setOutgoingCall(null);
+    socketRef.current?.emit("cancelCall", {
+      conversationId,
+      from: currentUser.id
+    });
 
-      const endCall = () => {
-          socketRef.current?.emit("call-ended", {
-            conversationId: activeCall?.conversationId,
-            from: currentUser.id
-          });
-        // 1. Dừng tất cả track local
-        localStream?.getTracks().forEach(track => track.stop());
+    const messageResponse = await messageApi.updateCall(
+      conversationId,
+      { 
+        callStatus: "canceled",
+      }
+    );
 
-        // 2. Đóng peer connection
-        pcRef.current?.close();
-        pcRef.current = null;
+    setMessages(prev => {
+      const newMsg = messageResponse.data.message;
+      const exists = prev.some(m => m.id === newMsg._id || m._id === newMsg._id);
 
-        // 3. Xóa state
-        setLocalStream(null);
-        setRemoteStreams([]);
-        setIsCalling(false);
-        setActiveCall(null);
+      if (exists) {
+        const updated = prev.map(m =>
+          (m.id === newMsg._id || m._id === newMsg._id)
+            ? { ...m, callStatus: "canceled" }
+            : m
+        );
+        return updated;
+      }
 
-        // 4. Quay về trang trước hoặc trang mong muốn
-        navigate(-1); // quay lại trang trước
-      };
+      const added = [...prev, newMsg];
+      return added;
+    });
+  };
+
+  const endCall = async() => {
+    socketRef.current?.emit("call-ended", {
+      conversationId: activeCall.conversationId,
+      from: currentUser.id
+    });
+
+    const messageResponse = await messageApi.updateCall(
+      activeCall.conversationId,
+      { 
+        callStatus: "ended",
+        endedAt: new Date().toISOString()
+      }
+    );
+
+    setMessages(prev => {
+      const newMsg = messageResponse.data.message;
+      const exists = prev.some(m => m.id === newMsg._id || m._id === newMsg._id);
+
+      if (exists) {
+        const updated = prev.map(m =>
+          (m.id === newMsg._id || m._id === newMsg._id)
+            ? { ...m, callStatus: "ended", duration: newMsg.duration }
+            : m
+        );
+        return updated;
+      }
+
+      const added = [...prev, newMsg];
+      return added;
+    });
+    // 1. Dừng tất cả track local
+    localStream?.getTracks().forEach(track => track.stop());
+
+    // 2. Đóng peer connection
+    pcRef.current?.close();
+    pcRef.current = null;
+
+    // 3. Xóa state
+    setLocalStream(null);
+    setRemoteStreams([]);
+    setIsCalling(false);
+    setActiveCall(null);
+
+    // 4. Quay về trang trước hoặc trang mong muốn
+    navigate(-1); // quay lại trang trước
+  };
 
   return (
     <CallContext.Provider
@@ -275,7 +407,6 @@ export const CallProvider = ({ children, currentUser, }) => {
         outgoingCall,
         activeCall,
         pcRef,
-        
       }}
     >
       {children}
@@ -297,15 +428,13 @@ export const CallProvider = ({ children, currentUser, }) => {
           onCancel={cancelCall}
         />
       )}
-      {isCalling && (
-        <>
+      {isCalling && acceptedUsers.find(u => u.id === currentUser.id) && (
         <CallScreen
           localStream={localStream}
           remoteStreams={remoteStreams}
           isGroup={activeCall.isGroup}
           onEndCall={endCall}
         />
-        </>
       )}
 
     </CallContext.Provider>

@@ -35,6 +35,10 @@ const friendApi = {
     return axiosClient.post("/friend/request", data)
   },
 
+  searchListFriend(data){
+    return axiosClient.get("/friend/search", {params: data})
+  }
+
 };
 
 export default friendApi;

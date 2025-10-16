@@ -57,6 +57,22 @@ export default function ChatPage() {
               });
             });
           }, false);
+
+          
+          onEvent("updateCallStatusChatPage", (message) => {
+            setConversations(prev => {
+              const updated = prev.map(c =>
+                c.conversationId === message.conversationId
+                  ? { ...c, lastMessage: message }
+                  : c
+              );
+              return updated.sort((a, b) => {
+                const aTime = a.lastMessage?.createdAt ? new Date(a.lastMessage.createdAt).getTime() : 0;
+                const bTime = b.lastMessage?.createdAt ? new Date(b.lastMessage.createdAt).getTime() : 0;
+                return bTime - aTime;
+              });
+            }, false);
+          });
         }
       } catch (err) {
         const message = err.response?.data?.message || err.message || "Lấy danh sách cuộc trò chuyện thất bại";
@@ -98,24 +114,39 @@ export default function ChatPage() {
                 ? conv.name
                 : conv.members.find((m) => m.id !== currentUserId)?.name || "Ai đó";
 
+
               let lastMessageText = "Chưa có tin nhắn";
+
               if (lastMessage) {
-                if (lastMessage.attachments?.some(a => a != null)) {
-                  // Nếu là ảnh/file
-                  if (lastMessage.senderId === currentUserId) {
-                    lastMessageText = "Bạn: Đã gửi 1 hình ảnh";
-                  } else {
-                    const sender = conv.members.find(m => m.id === lastMessage.senderId);
-                    lastMessageText = `${sender?.name || "Ai đó"}: Đã gửi 1 hình ảnh`;
+                const sender =
+                  conv.members.find((m) => m.id === lastMessage.senderId) || { name: "Ai đó" };
+
+                // Prefix luôn là tên người gửi
+                const prefix = lastMessage.senderId === currentUserId ? "Bạn" : sender.name;
+
+                // Nếu là cuộc gọi
+                if (lastMessage.type === "call") {
+                  switch (lastMessage.callStatus) {
+                    case "ongoing":
+                      lastMessageText = `${prefix}: 📞 Cuộc gọi đang diễn ra`;
+                      break;
+                    case "ended":
+                      lastMessageText = `${prefix}: 📞 Cuộc gọi kết thúc${lastMessage.duration ? ` (${lastMessage.duration}s)` : ""}`;
+                      break;
+                    case "canceled":
+                      lastMessageText = `${prefix}: 📞 Cuộc gọi đã hủy`;
+                      break;
+                    case "rejected":
+                      lastMessageText = `${prefix}: 📞 Cuộc gọi bị từ chối`;
+                      break;
+                    default:
+                      lastMessageText = `${lastMessage.callStatus} `;
+                      break;
                   }
+                } else if (lastMessage.attachments?.some(a => a != null)) {
+                  lastMessageText = `${prefix}: 📷 Đã gửi 1 hình ảnh`;
                 } else if (lastMessage.content) {
-                  // Nếu là text
-                  if (lastMessage.senderId === currentUserId) {
-                    lastMessageText = `Bạn: ${lastMessage.content}`;
-                  } else {
-                    const sender = conv.members.find(m => m.id === lastMessage.senderId);
-                    lastMessageText = `${sender?.name || "Ai đó"}: ${lastMessage.content}`;
-                  }
+                  lastMessageText = `${prefix}: ${lastMessage.content}`;
                 }
               }
               return (
@@ -123,22 +154,30 @@ export default function ChatPage() {
                   key={conv.conversationId}
                   onClick={() => handleConversationSelect(conv)}
                   className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${selectedConversation?.conversationId === conv.conversationId
-                      ? "bg-blue-50 border-r-4 border-r-blue-500"
-                      : ""
+                    ? "bg-blue-50 border-r-4 border-r-blue-500"
+                    : ""
                     }`}
                 >
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 relative flex items-center">
-                      {conv.isGroup
-                        ? (
+                      {conv.isGroup ? (
+                        conv.avatar ? (
+                          // Nếu có avatar nhóm thì hiển thị
+                          <img
+                            src={conv.avatar}
+                            alt={conv.name || "Nhóm"}
+                            className="w-12 h-12 rounded-full"
+                          />
+                        ) : (
+                          // Nếu không có avatar nhóm thì hiển thị 3 avatar thành viên + +N
                           <>
                             {conv.members.slice(0, 3).map((m, index) => (
                               <img
                                 key={index}
                                 src={m.avatar || AltAvatar}
-                                alt="avatar"
+                                alt={m.name}
                                 className={`w-6 h-6 rounded-full border-2 border-white
-                                    ${index === 0 ? 'z-10' : '-ml-2 z-20'}`}
+                                  ${index === 0 ? 'z-10' : '-ml-2 z-20'}`}
                               />
                             ))}
                             {conv.members.length > 3 && (
@@ -148,14 +187,14 @@ export default function ChatPage() {
                             )}
                           </>
                         )
-                        : (
-                          <img
-                            src={conv.members[0]?.avatar || AltAvatar}
-                            alt={convName}
-                            className="w-12 h-12 rounded-full"
-                          />
-                        )
-                      }
+                      ) : (
+                        // Nếu không phải nhóm thì hiển thị avatar người kia
+                        <img
+                          src={conv.members[0]?.avatar || AltAvatar}
+                          alt={convName}
+                          className="w-12 h-12 rounded-full"
+                        />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start">
