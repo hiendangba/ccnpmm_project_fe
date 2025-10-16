@@ -21,7 +21,7 @@ export default function Picture({
       src={src || alt}
       alt={alt}
       onClick={onClick}
-      className={`w-20 h-20 ${baseStyle} ${variants[variant]} ${className}`}
+      className={`${baseStyle} ${variants[variant]} ${className}`}
     />
   );
 }

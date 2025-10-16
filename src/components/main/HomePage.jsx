@@ -98,11 +98,7 @@ export default function HomePage({ children, avatar, name, socket }) {
               <Home className="h-4 w-4 mr-2" />
               Trang chủ
             </li>
-            <li
-              className="cursor-pointer hover:text-blue-500 transition-colors duration-200 flex items-center"
-              onClick={() => navigate("/personal-page")}
-            >
-              <User className="h-4 w-4 mr-2" />
+            <li className="cursor-pointer hover:text-blue-500 hover:translate-x-[-8px] transition-transform duration-200" onClick={() => navigate("/personal-page", { state: { user: user }})}>
               Trang cá nhân
             </li>
             <li
