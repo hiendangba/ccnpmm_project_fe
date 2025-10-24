@@ -41,8 +41,16 @@ export default function UploadAvatarDialog({ open, onOpenChange, file, onCancel,
         }
     }
 
+    const handleOpenChange = (isOpen) => {
+        if (!isOpen) {
+            // Khi đóng dialog (bấm X hoặc click outside), gọi onCancel
+            onCancel();
+        }
+        onOpenChange(isOpen);
+    };
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle>Chỉnh sửa ảnh đại diện</DialogTitle>
