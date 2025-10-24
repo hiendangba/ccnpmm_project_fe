@@ -1,14 +1,15 @@
 import axios from "axios";
 import authApi from "./authApi"
-let getToken; 
+let getToken;
 
 export const setTokenGetter = (fn) => {
   getToken = fn;
 };
 
 const axiosClient = axios.create({
-    baseURL: "http://localhost:3001/api",
-    headers: {
+  baseURL: "https://zaloute-api.onrender.com/api",
+  // baseURL: "http://localhost:3001/api",
+  headers: {
     "Content-Type": "application/json",
   },
   withCredentials: true

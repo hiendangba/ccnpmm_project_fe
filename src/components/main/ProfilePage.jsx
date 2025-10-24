@@ -88,17 +88,17 @@ export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, ad
 
   const handleUploadSave = (newAvatarUrl) => {
     console.log("🔄 Updating avatar in ProfilePage:", newAvatarUrl);
-    
+
     // Cập nhật formData
     setFormData((prev) => ({ ...prev, avatar: newAvatarUrl }));
-    
+
     // Cập nhật currentUser trong context
     const updatedUser = { ...currentUser, avatar: newAvatarUrl };
     updateCurrentUser(updatedUser);
-    
+
     // Cập nhật localStorage
     localStorage.setItem("user", JSON.stringify(updatedUser));
-    
+
     setSelectedFile(null);
     setIsUploadDialogOpen(false);
     if (fileInputRef.current) {
