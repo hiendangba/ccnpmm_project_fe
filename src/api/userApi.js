@@ -12,6 +12,14 @@ const userApi = {
   updateProfile(data) {
     return axiosClient.put("/user/profile", data);
   },
+
+  uploadAvatar(formData) {
+    return axiosClient.put("/user/profile", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    });
+  },
   postNew(data){
     return axiosClient.post("/user/postNew", data, {
       headers: {

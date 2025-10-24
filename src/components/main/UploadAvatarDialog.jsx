@@ -19,24 +19,48 @@ export default function UploadAvatarDialog({ open, onOpenChange, file, onCancel,
         formData.append("avatar", croppedBlob);
 
         try {
+            console.log("🚀 Uploading avatar...");
             // Gọi API upload avatar trực tiếp
             const result = await userApi.uploadAvatar(formData);
-            if (result && result.avatar) {
+            console.log("✅ Upload result:", result);
+            
+            if (result && result.avatarUrl) {
+                console.log("✅ Avatar URL from result.avatarUrl:", result.avatarUrl);
+                onSave(result.avatarUrl);
+            } else if (result && result.avatar) {
+                console.log("✅ Avatar URL from result.avatar:", result.avatar);
                 onSave(result.avatar);
+            } else if (result && result.name) {
+                // Nếu response trả về user object thay vì avatar field
+                console.log("✅ Avatar URL from result (user object):", result.avatarUrl || result.avatar);
+                onSave(result.avatarUrl || result.avatar);
+            } else {
+                console.error("❌ Unexpected response format:", result);
+                console.log("🔍 Available fields in result:", Object.keys(result || {}));
             }
         } catch (error) {
-            console.error("Lỗi upload avatar:", error);
-            // Fallback: thử cách cũ nếu API mới chưa có
-            const fallbackFormData = new FormData();
-            fallbackFormData.append("images", croppedBlob);
-            fallbackFormData.append("content", "");
-            fallbackFormData.append("userId", user.id);
-            fallbackFormData.append("isAvatar", true);
+            console.error("❌ Lỗi upload avatar:", error);
+            console.error("📊 Error details:", {
+                message: error.message,
+                status: error.response?.status,
+                data: error.response?.data
+            });
             
-            const result = await userApi.postNew(fallbackFormData);
-            if (result && result.post) {
-                const newAvatarUrl = result.post.user.avatarUrl || result.post.images?.[0];
-                onSave(newAvatarUrl);
+            // Fallback: thử cách cũ nếu API mới chưa có
+            try {
+                const fallbackFormData = new FormData();
+                fallbackFormData.append("images", croppedBlob);
+                fallbackFormData.append("content", "");
+                fallbackFormData.append("userId", user.id);
+                fallbackFormData.append("isAvatar", true);
+                
+                const result = await userApi.postNew(fallbackFormData);
+                if (result && result.post) {
+                    const newAvatarUrl = result.post.user.avatarUrl || result.post.images?.[0];
+                    onSave(newAvatarUrl);
+                }
+            } catch (fallbackError) {
+                console.error("❌ Fallback upload failed:", fallbackError);
             }
         }
     }

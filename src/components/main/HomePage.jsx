@@ -23,7 +23,7 @@ export default function HomePage({ children, avatar, name, socket }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
-  const user = JSON.parse(localStorage.getItem("user")) || {};
+  const user = currentUser || {};
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerImages, setViewerImages] = useState([]);
   const [viewerIndex, setViewerIndex] = useState(0);
@@ -73,15 +73,16 @@ export default function HomePage({ children, avatar, name, socket }) {
       >
         <div className="flex flex-col justify-center items-center mt-6 space-y-2">
           <Picture
-            src={avatar || AltAvatar}
+            src={user?.avatarUrl || user?.avatar || AltAvatar}
             alt="avatar"
             size="lg"
             variant="circle"
             className="w-20 h-20 cursor-pointer"
             onClick={() => navigate("/profile")}
+            key={user?.avatarUrl || user?.avatar || 'default'}
           />
           <p className="text-lg font-semibold text-black drop-shadow-md">
-            {name || "Người dùng"}
+            {user?.name || "Người dùng"}
           </p>
         </div>
 

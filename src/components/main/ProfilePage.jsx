@@ -20,17 +20,28 @@ export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, ad
   const location = useLocation();
   const user = location.state?.user || currentUser;
 
+  console.log("🔍 ProfilePage Debug:", {
+    currentUser: currentUser,
+    user: user,
+    avatarUrl: user?.avatarUrl,
+    avatar: user?.avatar
+  });
+
   const initialData = useMemo(
-    () => ({
-      avatar: user?.avatar || avatar || "",
-      name: user?.name || name || "",
-      mssv: user?.mssv || mssv || "",
-      email: user?.email || email || "",
-      dateOfBirth: formatDate(user?.dateOfBirth || dateOfBirth),
-      address: user?.address || address || "",
-      gender: user?.gender || gd || "nam", // mặc định "nam"
-    }),
-    [avatar, name, mssv, email, dateOfBirth, address, gd]
+    () => {
+      const data = {
+        avatar: user?.avatarUrl || user?.avatar || avatar || "",
+        name: user?.name || name || "",
+        mssv: user?.mssv || mssv || "",
+        email: user?.email || email || "",
+        dateOfBirth: formatDate(user?.dateOfBirth || dateOfBirth),
+        address: user?.address || address || "",
+        gender: user?.gender || gd || "nam", // mặc định "nam"
+      };
+      console.log("🔍 InitialData:", data);
+      return data;
+    },
+    [user, avatar, name, mssv, email, dateOfBirth, address, gd]
   );
 
   const [formData, setFormData] = useState(initialData);
@@ -76,8 +87,18 @@ export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, ad
   };
 
   const handleUploadSave = (newAvatarUrl) => {
+    console.log("🔄 Updating avatar in ProfilePage:", newAvatarUrl);
+    
+    // Cập nhật formData
     setFormData((prev) => ({ ...prev, avatar: newAvatarUrl }));
-    updateCurrentUser({ ...currentUser, avatar: newAvatarUrl });
+    
+    // Cập nhật currentUser trong context
+    const updatedUser = { ...currentUser, avatar: newAvatarUrl };
+    updateCurrentUser(updatedUser);
+    
+    // Cập nhật localStorage
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    
     setSelectedFile(null);
     setIsUploadDialogOpen(false);
     if (fileInputRef.current) {
