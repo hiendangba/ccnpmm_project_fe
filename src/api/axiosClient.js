@@ -1,5 +1,5 @@
 import axios from "axios";
-import authApi from "./authApi"
+import refreshAxios from "./refreshAxios";
 let getToken;
 
 export const setTokenGetter = (fn) => {
@@ -33,6 +33,12 @@ axiosClient.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
+        const res = await refreshAxios.post("/auth/refreshToken");
+        const newToken = res.token;
+        setTokenGetter(() => newToken);
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        const retryResponse = await axios(originalRequest);
+        return retryResponse.data; // trả về data của request cũ
       } catch (err) {
         return Promise.reject(err);
       }
