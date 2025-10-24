@@ -58,7 +58,7 @@ export default function ChatPage() {
             });
           }, false);
 
-          
+
           onEvent("updateCallStatusChatPage", (message) => {
             setConversations(prev => {
               const updated = prev.map(c =>
@@ -99,15 +99,11 @@ export default function ChatPage() {
           <div className="p-4 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-800">Tin nhắn</h2>
           </div>
-
-          <div className="p-4 border-b border-gray-200">
-            <InputField placeholder="Tìm kiếm cuộc trò chuyện" className="w-full border border-gray-300" />
-          </div>
-
           <div className="flex-1 overflow-y-auto">
             {conversations.map((conv) => {
               const lastMessage = conv.lastMessage;
               const isUnread = lastMessage && lastMessage.senderId !== currentUserId && !lastMessage.readBy?.includes(currentUserId);
+              const otherMember = conv.members.find(m => m.id !== currentUserId);
 
               // Tên conversation
               const convName = conv.isGroup
@@ -190,7 +186,7 @@ export default function ChatPage() {
                       ) : (
                         // Nếu không phải nhóm thì hiển thị avatar người kia
                         <img
-                          src={conv.members[0]?.avatar || AltAvatar}
+                          src={otherMember?.avatar || AltAvatar}
                           alt={convName}
                           className="w-12 h-12 rounded-full"
                         />
