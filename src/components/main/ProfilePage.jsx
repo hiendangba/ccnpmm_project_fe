@@ -5,7 +5,8 @@ import InputField from '../common/InputField';
 import Button from '../common/Button';
 import Toast from "../common/Toast";
 import SelectField from '../common/SelectField';
-import { useState, useEffect, useMemo } from 'react';
+import UploadAvatarDialog from './UploadAvatarDialog';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
 import userApi from "../../api/userApi";
 import { useAuth } from "../../contexts/AuthProvider";
@@ -35,6 +36,9 @@ export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, ad
   const [formData, setFormData] = useState(initialData);
   const [isChanged, setIsChanged] = useState(false);
   const [toast, setToast] = useState(null);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     setFormData(initialData);
@@ -49,6 +53,40 @@ export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, ad
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setIsUploadDialogOpen(true);
+    }
+  };
+
+  const handleUploadCancel = () => {
+    setSelectedFile(null);
+    setIsUploadDialogOpen(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleUploadSave = (newAvatarUrl) => {
+    setFormData((prev) => ({ ...prev, avatar: newAvatarUrl }));
+    updateCurrentUser({ ...currentUser, avatar: newAvatarUrl });
+    setSelectedFile(null);
+    setIsUploadDialogOpen(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    setToast({
+      type: "success",
+      message: "Cập nhật ảnh đại diện thành công",
+    });
   };
 
   const handleSave = async () => {
@@ -104,14 +142,23 @@ export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, ad
               Thông tin cá nhân
             </h1>
 
-            <Picture
-              src={formData.avatar || AltAvatar}
-              alt="avatar"
-              size="lg"
-              variant="circle"
-              onClick={() => navigate("/list-member")}
-              className="w-28 h-28 md:w-32 md:h-32 cursor-pointer"
-            />
+            <div className="relative">
+              <Picture
+                src={formData.avatar || AltAvatar}
+                alt="avatar"
+                size="lg"
+                variant="circle"
+                onClick={handleAvatarClick}
+                className="w-28 h-28 md:w-32 md:h-32 cursor-pointer"
+              />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </div>
 
             {/* Input fields */}
             <InputField
@@ -185,6 +232,15 @@ export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, ad
           onClose={() => setToast(null)}
         />
       )}
+
+      <UploadAvatarDialog
+        open={isUploadDialogOpen}
+        onOpenChange={setIsUploadDialogOpen}
+        file={selectedFile}
+        onCancel={handleUploadCancel}
+        onSave={handleUploadSave}
+        user={currentUser}
+      />
     </>
   );
 }
