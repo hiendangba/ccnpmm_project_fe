@@ -4,7 +4,10 @@ let socket = null;
 
 export const initSocket = () => {
   if (!socket) {
-    socket = io("http://localhost:3001");
+    socket = io("https://zaloute-api.onrender.com", {
+      transports: ["websocket"],
+      secure: true,
+    });
 
     socket.on("connect", () => console.log("Socket connected:", socket.id));
     socket.on("disconnect", () => console.log("Socket disconnected"));
