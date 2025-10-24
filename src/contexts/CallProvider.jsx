@@ -64,7 +64,7 @@ export const CallProvider = ({ children, currentUser, }) => {
 
       const totalMembers = conversation.members?.length || 0;
       const totalRejected = rejectedUsersRef.current.length;
-      
+
       // 1️⃣ Cuộc gọi riêng
       const isPrivateCall = totalMembers === 2;
       if (isPrivateCall) {
@@ -93,10 +93,10 @@ export const CallProvider = ({ children, currentUser, }) => {
         setOutgoingCall(null); // đóng modal cuộc gọi đến
       }
     });
-    
+
 
     onEvent("call-offer", (data) => {
-      if (data.from !== currentUser.id && acceptedUsersRef.current.find(u => u.id === data.from )) {
+      if (data.from !== currentUser.id && acceptedUsersRef.current.find(u => u.id === data.from)) {
         console.log("handleIncoming Offer")
         handleIncomingOffer(data.offer, data.conversation)
         console.log("finish handleIncoming Offer")
@@ -104,13 +104,13 @@ export const CallProvider = ({ children, currentUser, }) => {
     });
 
     onEvent("call-answer", (data) => {
-      if (data.from !== currentUser.id && acceptedUsersRef.current.find(u => u.id === data.from )) {
+      if (data.from !== currentUser.id && acceptedUsersRef.current.find(u => u.id === data.from)) {
         handleAnswer(data.answer, data.conversationId);
       }
     });
 
     onEvent("ice-candidate", (data) => {
-      if (data.from !== currentUser.id && acceptedUsersRef.current.find(u => u.id === data.from )) {
+      if (data.from !== currentUser.id && acceptedUsersRef.current.find(u => u.id === data.from)) {
         console.log("Received ice-candidate:", data);
         handleCandidate(data.candidate, data.conversationId);
       }
@@ -164,8 +164,8 @@ export const CallProvider = ({ children, currentUser, }) => {
   const handleIncomingOffer = async (offer, conversation) => {
     try {
       // 1. Lấy local media
-      const stream = await getFakeMediaStream();
-
+      // const stream = await getFakeMediaStream();
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       setLocalStream(stream);
       setActiveCall(conversation)
       // 2. Tạo peer connection
@@ -243,7 +243,7 @@ export const CallProvider = ({ children, currentUser, }) => {
   }
 
   const startCall = async (conversation, user) => {
-    setOutgoingCall({conversation});
+    setOutgoingCall({ conversation });
     setRejectedUsers([])
     setActiveCall(conversation);
     socketRef.current?.emit("callRequest", {
@@ -256,22 +256,22 @@ export const CallProvider = ({ children, currentUser, }) => {
   // Accept call
   const acceptCall = async () => {
     if (!incomingCall) return;
-    
+
     try {
       socketRef.current?.emit("call-accepted", {
         conversation: incomingCall.conversation,
         from: currentUser.id
       });
       setAcceptedUsers(prev => {
-          const newUsers = [];
-          if (!prev.find(u => u.id === currentUser.id)) {
-              newUsers.push({ id: currentUser.id });
-          }
+        const newUsers = [];
+        if (!prev.find(u => u.id === currentUser.id)) {
+          newUsers.push({ id: currentUser.id });
+        }
 
-          if (incomingCall && !prev.find(u => u.id === incomingCall.from)) {
-              newUsers.push({ id: incomingCall.from });
-          }
-          return [...prev, ...newUsers];
+        if (incomingCall && !prev.find(u => u.id === incomingCall.from)) {
+          newUsers.push({ id: incomingCall.from });
+        }
+        return [...prev, ...newUsers];
       });
       await messageApi.updateCall(
         incomingCall.conversation.conversationId,
@@ -284,7 +284,7 @@ export const CallProvider = ({ children, currentUser, }) => {
   };
 
   // Decline call
-  const declineCall = async(conversation) => {
+  const declineCall = async (conversation) => {
     setIncomingCall(null);
     socketRef.current?.emit("declineCall", {
       conversation: conversation,
@@ -294,7 +294,7 @@ export const CallProvider = ({ children, currentUser, }) => {
 
     const messageResponse = await messageApi.updateCall(
       conversation.conversationId,
-      { 
+      {
         callStatus: "rejected",
       }
     );
@@ -314,7 +314,7 @@ export const CallProvider = ({ children, currentUser, }) => {
   };
 
   // Cancel outgoing call
-  const cancelCall = async(conversationId) => {
+  const cancelCall = async (conversationId) => {
     setOutgoingCall(null);
     socketRef.current?.emit("cancelCall", {
       conversationId,
@@ -323,7 +323,7 @@ export const CallProvider = ({ children, currentUser, }) => {
 
     const messageResponse = await messageApi.updateCall(
       conversationId,
-      { 
+      {
         callStatus: "canceled",
       }
     );
@@ -346,7 +346,7 @@ export const CallProvider = ({ children, currentUser, }) => {
     });
   };
 
-  const endCall = async() => {
+  const endCall = async () => {
     socketRef.current?.emit("call-ended", {
       conversationId: activeCall.conversationId,
       from: currentUser.id
@@ -354,7 +354,7 @@ export const CallProvider = ({ children, currentUser, }) => {
 
     const messageResponse = await messageApi.updateCall(
       activeCall.conversationId,
-      { 
+      {
         callStatus: "ended",
         endedAt: new Date().toISOString()
       }
