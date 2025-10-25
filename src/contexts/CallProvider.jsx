@@ -163,8 +163,6 @@ export const CallProvider = ({ children, currentUser, }) => {
 
   const handleIncomingOffer = async (offer, conversation) => {
     try {
-      // 1. Lấy local media
-      // const stream = await getFakeMediaStream();
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       setLocalStream(stream);
       setActiveCall(conversation)
