@@ -135,7 +135,16 @@ export const CallProvider = ({ children, currentUser, }) => {
       setLocalStream(stream);
       setIsCalling(true);
       // 2. Tạo peer connection
-      const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+      const pc = new RTCPeerConnection({
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          {
+            urls: "turn:relay1.expressturn.com:3478",
+            username: "efree",
+            credential: "efree",
+          },
+        ],
+      });
       pc.onicecandidate = (event) => {
         if (event.candidate) {
           socketRef.current?.emit("ice-candidate", {
@@ -176,8 +185,16 @@ export const CallProvider = ({ children, currentUser, }) => {
       setLocalStream(stream);
       setActiveCall(conversation)
       // 2. Tạo peer connection
-      const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
-
+      const pc = new RTCPeerConnection({
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          {
+            urls: "turn:relay1.expressturn.com:3478",
+            username: "efree",
+            credential: "efree",
+          },
+        ],
+      });
       // 3. Thêm local tracks
       stream.getTracks().forEach(track => pc.addTrack(track, stream));
       pc.onicecandidate = (event) => {
