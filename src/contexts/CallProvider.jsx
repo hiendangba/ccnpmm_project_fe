@@ -138,18 +138,8 @@ export const CallProvider = ({ children, currentUser, }) => {
       const pc = new RTCPeerConnection({
         iceServers: [
           { urls: "stun:stun.l.google.com:19302" },
-          {
-            urls: [
-              "turn:openrelay.metered.ca:80",
-              "turn:openrelay.metered.ca:443",
-              "turns:openrelay.metered.ca:443",
-            ],
-            username: "openai",
-            credential: "openai",
-          },
         ],
       });
-
       pc.onicecandidate = (event) => {
         if (event.candidate) {
           socketRef.current?.emit("ice-candidate", {
@@ -195,15 +185,6 @@ export const CallProvider = ({ children, currentUser, }) => {
       const pc = new RTCPeerConnection({
         iceServers: [
           { urls: "stun:stun.l.google.com:19302" },
-          {
-            urls: [
-              "turn:openrelay.metered.ca:80",
-              "turn:openrelay.metered.ca:443",
-              "turns:openrelay.metered.ca:443",
-            ],
-            username: "openai",
-            credential: "openai",
-          },
         ],
       });
       // 3. Thêm local tracks

@@ -6,6 +6,8 @@ export const setTokenGetter = (fn) => {
   getToken = fn;
 };
 
+
+
 const axiosClient = axios.create({
   baseURL: "https://zaloute-api.onrender.com/api",
   // baseURL: "http://localhost:3001/api",
@@ -34,7 +36,7 @@ axiosClient.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const res = await refreshAxios.post("/auth/refreshToken");
-        const newToken = res.token;
+        const newToken = res.data.token;
         setTokenGetter(() => newToken);
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         const retryResponse = await axios(originalRequest);

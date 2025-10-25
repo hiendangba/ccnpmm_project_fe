@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.removeItem("token");
   }, []);
 
-   // ✅ HÀM NÀY THÊM MỚI
+  // ✅ HÀM NÀY THÊM MỚI
   const updateCurrentUser = (newUser) => {
     setCurrentUser(newUser);
     localStorage.setItem("user", JSON.stringify(newUser));
@@ -55,6 +55,7 @@ export const AuthProvider = ({ children }) => {
   const login = async ({ mssv, password, remember }) => {
     try {
       const response = await authApi.login({ mssv, password });
+      console.log(response);
       const { token, refreshToken } = response;
       // Nếu remember thì lưu localStorage, ngược lại sessionStorage
       if (remember) {
