@@ -136,6 +136,15 @@ export const CallProvider = ({ children, currentUser, }) => {
       setIsCalling(true);
       // 2. Tạo peer connection
       const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+      pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          socketRef.current?.emit("ice-candidate", {
+            conversationId: conversation.conversationId,
+            candidate: event.candidate,
+            from: currentUser.id
+          });
+        }
+      };
       // 3. Thêm local tracks
       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
       // 4. Nhận remote track
