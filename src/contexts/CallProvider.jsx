@@ -139,12 +139,17 @@ export const CallProvider = ({ children, currentUser, }) => {
         iceServers: [
           { urls: "stun:stun.l.google.com:19302" },
           {
-            urls: "turn:numb.viagenie.ca",
-            username: "webrtc@live.com",
-            credential: "muazkh",
+            urls: [
+              "turn:openrelay.metered.ca:80",
+              "turn:openrelay.metered.ca:443",
+              "turns:openrelay.metered.ca:443",
+            ],
+            username: "openai",
+            credential: "openai",
           },
         ],
       });
+
       pc.onicecandidate = (event) => {
         if (event.candidate) {
           socketRef.current?.emit("ice-candidate", {
@@ -154,6 +159,8 @@ export const CallProvider = ({ children, currentUser, }) => {
           });
         }
       };
+      console.log("🔗 PeerConnection được tạo:", pc);
+
       // 3. Thêm local tracks
       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
       // 4. Nhận remote track
@@ -189,9 +196,13 @@ export const CallProvider = ({ children, currentUser, }) => {
         iceServers: [
           { urls: "stun:stun.l.google.com:19302" },
           {
-            urls: "turn:numb.viagenie.ca",
-            username: "webrtc@live.com",
-            credential: "muazkh",
+            urls: [
+              "turn:openrelay.metered.ca:80",
+              "turn:openrelay.metered.ca:443",
+              "turns:openrelay.metered.ca:443",
+            ],
+            username: "openai",
+            credential: "openai",
           },
         ],
       });
