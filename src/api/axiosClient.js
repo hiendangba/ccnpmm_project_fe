@@ -36,6 +36,7 @@ axiosClient.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const res = await refreshAxios.post("/auth/refreshToken");
+        console.log("Token đã được làm mới:", res);
         const newToken = res.data.token;
         setTokenGetter(() => newToken);
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
