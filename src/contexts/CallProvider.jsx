@@ -111,7 +111,7 @@ export const CallProvider = ({ children, currentUser, }) => {
 
     onEvent("ice-candidate", (data) => {
       if (data.from !== currentUser.id && acceptedUsersRef.current.find(u => u.id === data.from)) {
-        console.log("Received ice-candidate:", data);
+        console.log("Received ice-candidate (full):", JSON.stringify(data, null, 2));
         handleCandidate(data.candidate, data.conversationId);
       }
     });
