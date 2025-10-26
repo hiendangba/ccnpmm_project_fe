@@ -44,7 +44,7 @@ export default function VerifyOTPPage() {
 
       setToast({ message: response.message, type: "success" });
       setTimeout(() => {
-        navigate("/reset-password");
+        navigate("/change-password");
       }, 1500);
     } catch (error) {
       const message =
@@ -55,7 +55,7 @@ export default function VerifyOTPPage() {
 
       setTryTime((prev) => Math.max(prev - 1, 0));
     } finally {
-      setOtp(""); 
+      setOtp("");
       setLoading(false);
     }
   };
@@ -75,10 +75,10 @@ export default function VerifyOTPPage() {
       if (response.tryTime !== undefined) {
         setTryTime(response.tryTime);
       } else {
-        setTryTime(3); 
+        setTryTime(3);
       }
 
-      setOtp(""); 
+      setOtp("");
     } catch (error) {
       const message =
         error.response?.data?.message ||

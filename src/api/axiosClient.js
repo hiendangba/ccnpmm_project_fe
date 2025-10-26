@@ -9,8 +9,8 @@ export const setTokenGetter = (fn) => {
 
 
 const axiosClient = axios.create({
-  baseURL: "https://zaloute-api.onrender.com/api",
-  // baseURL: "http://localhost:3001/api",
+  // baseURL: "https://zaloute-api.onrender.com/api",
+  baseURL: "http://localhost:3001/api",
   headers: {
     "Content-Type": "application/json",
   },

@@ -67,7 +67,7 @@ function AppRoutes({ socket }) {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/verify-otpFP" element={<VerifyOTPFPPage />} />
-
+      <Route path="/change-password" element={<ChangePasswordPage />} />
       {/* Admin routes */}
       <Route
         path="/admin/users"

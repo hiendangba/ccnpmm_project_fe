@@ -5,7 +5,7 @@ import InputField from '../common/InputField';
 import Button from '../common/Button';
 import Toast from "../common/Toast";
 import SelectField from '../common/SelectField';
-import UploadAvatarDialog from './UploadAvatarDialog';
+import UploadAvatarDialog from './UploadAvtProfile';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
 import userApi from "../../api/userApi";
@@ -92,13 +92,9 @@ export default function ProfilePage({ avatar, name, mssv, email, dateOfBirth, ad
     // Cập nhật formData
     setFormData((prev) => ({ ...prev, avatar: newAvatarUrl }));
 
-    // Cập nhật currentUser trong context
-    const updatedUser = { ...currentUser, avatar: newAvatarUrl };
+    const updatedUser = { ...currentUser, avatarUrl: newAvatarUrl };
     updateCurrentUser(updatedUser);
-
-    // Cập nhật localStorage
     localStorage.setItem("user", JSON.stringify(updatedUser));
-
     setSelectedFile(null);
     setIsUploadDialogOpen(false);
     if (fileInputRef.current) {
