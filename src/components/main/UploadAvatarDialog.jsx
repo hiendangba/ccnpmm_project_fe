@@ -6,92 +6,72 @@ import {
     DialogDescription,
 } from "../common/dialog";
 import Button from "../common/Button"
-import ImageCropper from "../common/ImageCropper";
+import { useState } from "react"
 import userApi from "../../api/userApi";
 
 export default function UploadAvatarDialog({ open, onOpenChange, file, onCancel, onSave, user }) {
+    const [feeling, setFeeling] = useState("");
     const previewUrl = file ? URL.createObjectURL(file) : null;
 
-    const handleCrop = async (croppedBlob) => {
-        if (!croppedBlob) return;
+    const handleSave = async () => {
+        if (!file) return;
 
         const formData = new FormData();
-        formData.append("avatar", croppedBlob);
+        formData.append("images", file);
+        formData.append("content", feeling);
+        formData.append("userId", user.id);
+        formData.append("isAvatar", true);
 
-        try {
-            console.log("🚀 Uploading avatar...");
-            // Gọi API upload avatar trực tiếp
-            const result = await userApi.uploadAvatar(formData);
-            console.log("✅ Upload result:", result);
-            
-            if (result && result.avatarUrl) {
-                console.log("✅ Avatar URL from result.avatarUrl:", result.avatarUrl);
-                onSave(result.avatarUrl);
-            } else if (result && result.avatar) {
-                console.log("✅ Avatar URL from result.avatar:", result.avatar);
-                onSave(result.avatar);
-            } else if (result && result.name) {
-                // Nếu response trả về user object thay vì avatar field
-                console.log("✅ Avatar URL from result (user object):", result.avatarUrl || result.avatar);
-                onSave(result.avatarUrl || result.avatar);
-            } else {
-                console.error("❌ Unexpected response format:", result);
-                console.log("🔍 Available fields in result:", Object.keys(result || {}));
-            }
-        } catch (error) {
-            console.error("❌ Lỗi upload avatar:", error);
-            console.error("📊 Error details:", {
-                message: error.message,
-                status: error.response?.status,
-                data: error.response?.data
-            });
-            
-            // Fallback: thử cách cũ nếu API mới chưa có
-            try {
-                const fallbackFormData = new FormData();
-                fallbackFormData.append("images", croppedBlob);
-                fallbackFormData.append("content", "");
-                fallbackFormData.append("userId", user.id);
-                fallbackFormData.append("isAvatar", true);
-                
-                const result = await userApi.postNew(fallbackFormData);
-                if (result && result.post) {
-                    const newAvatarUrl = result.post.user.avatarUrl || result.post.images?.[0];
-                    onSave(newAvatarUrl);
-                }
-            } catch (fallbackError) {
-                console.error("❌ Fallback upload failed:", fallbackError);
-            }
+        // goi API
+        const result = await userApi.postNew(formData);
+        if (result && result.post) {
+            console.log(result.post);
+            const newAvatarUrl = result.post.user.avatarUrl || result.post.images?.[0];
+            setFeeling("");
+            onSave(newAvatarUrl);
         }
     }
 
-    const handleOpenChange = (isOpen) => {
-        if (!isOpen) {
-            // Khi đóng dialog (bấm X hoặc click outside), gọi onCancel
-            onCancel();
-        }
-        onOpenChange(isOpen);
-    };
-
     return (
-        <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="sm:max-w-lg">
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Chỉnh sửa ảnh đại diện</DialogTitle>
+                    <DialogTitle>Đặt ảnh đại diện</DialogTitle>
                     <DialogDescription>
-                        Kéo để di chuyển ảnh và sử dụng zoom để chọn vùng ảnh phù hợp
+                        Chia sẻ cảm xúc kèm theo ảnh của bạn!!!
                     </DialogDescription>
                 </DialogHeader>
 
-                {/* Image Cropper */}
+                {/* Preview ảnh */}
                 <div className="flex flex-col items-center gap-4">
                     {previewUrl && (
-                        <ImageCropper
-                            imageUrl={previewUrl}
-                            onCrop={handleCrop}
-                            onCancel={onCancel}
+                        <img
+                            src={previewUrl}
+                            alt="Preview"
+                            className="w-40 h-40 rounded-full object-cover border"
                         />
                     )}
+
+                    {/* Nhập cảm xúc */}
+                    <textarea
+                        placeholder="Bạn đang nghĩ gì?"
+                        value={feeling}
+                        onChange={(e) => setFeeling(e.target.value)}
+                        className="w-full border rounded px-3 py-2 text-sm resize-none"
+                        rows={3}
+                    />
+                </div>
+
+                {/* Nút hành động */}
+                <div className="flex justify-end gap-2 mt-4">
+                    <Button variant="outline" onClick={() => { setFeeling(""); onCancel(); }}>
+                        Hủy
+                    </Button>
+                    <Button
+                        onClick={handleSave}
+                    >
+                        Lưu
+                    </Button>
                 </div>
             </DialogContent>
         </Dialog>
